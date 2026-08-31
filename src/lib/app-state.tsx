@@ -81,7 +81,16 @@ interface AppStateValue {
   markMessage: (id: string, patch: Partial<Message>) => void;
 }
 
-const AppStateContext = createContext<AppStateValue | null>(null);
+// Keep a single context instance across HMR updates. Without this, reloading
+// this module creates a fresh context while mounted providers still use the
+// old one, which makes useAppState throw "must be used inside AppStateProvider".
+const globalStore = globalThis as unknown as {
+  __strangerlyAppStateContext?: React.Context<AppStateValue | null>;
+};
+
+const AppStateContext =
+  globalStore.__strangerlyAppStateContext ??
+  (globalStore.__strangerlyAppStateContext = createContext<AppStateValue | null>(null));
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<UserSession>(loadSession);
