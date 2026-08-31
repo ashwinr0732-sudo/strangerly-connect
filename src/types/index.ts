@@ -38,12 +38,15 @@ export interface Interest {
   icon: string;
 }
 
+export type MatchingMode = "random" | "interests";
+
 export interface UserSession {
   /** Anonymous session id — later replaced by Supabase anonymous auth uid. */
   id: string;
   createdAt: string;
   isPremium: boolean;
   interests: string[];
+  matchingMode: MatchingMode;
   preferences: {
     region: string;
     matchLanguage: string;

@@ -1,7 +1,10 @@
 import { INTERESTS } from "@/lib/interests";
 
 export function MatchStatus({ interests }: { interests: string[] }) {
-  const labels = INTERESTS.filter((i) => interests.includes(i.id)).map((i) => i.label);
+  const knownIds = new Set(INTERESTS.map((i) => i.id));
+  const labels = interests.map((id) =>
+    knownIds.has(id) ? INTERESTS.find((i) => i.id === id)!.label : `#${id}`,
+  );
 
   if (labels.length === 0) {
     return (
