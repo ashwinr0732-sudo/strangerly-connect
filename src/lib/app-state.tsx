@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import type { ChatSession, Message, UserSession } from "@/types";
+import { MAX_INTERESTS } from "@/lib/interests";
 
 /**
  * Temporary frontend-only state layer.
@@ -25,6 +26,7 @@ function createSession(): UserSession {
     createdAt: new Date().toISOString(),
     isPremium: false,
     interests: [],
+    matchingMode: "random",
     preferences: {
       region: "Worldwide",
       matchLanguage: "English",
@@ -66,7 +68,10 @@ interface AppStateValue {
   setPremiumModalOpen: (open: boolean) => void;
   openPremiumModal: () => void;
   toggleInterest: (id: string) => void;
+  addInterest: (id: string) => void;
+  removeInterest: (id: string) => void;
   clearInterests: () => void;
+  setMatchingMode: (mode: UserSession["matchingMode"]) => void;
   updatePreferences: (patch: Partial<UserSession["preferences"]>) => void;
   setPremium: (value: boolean) => void;
   startChat: () => void;
@@ -106,9 +111,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ...session,
           interests: session.interests.includes(id)
             ? session.interests.filter((i) => i !== id)
-            : [...session.interests, id],
+            : session.interests.length >= MAX_INTERESTS
+              ? session.interests
+              : [...session.interests, id],
         }),
+      addInterest: (id) =>
+        session.interests.includes(id) || session.interests.length >= MAX_INTERESTS
+          ? undefined
+          : persist({ ...session, interests: [...session.interests, id] }),
+      removeInterest: (id) =>
+        persist({ ...session, interests: session.interests.filter((i) => i !== id) }),
       clearInterests: () => persist({ ...session, interests: [] }),
+      setMatchingMode: (matchingMode) => persist({ ...session, matchingMode }),
       updatePreferences: (patch) =>
         persist({ ...session, preferences: { ...session.preferences, ...patch } }),
       setPremium: (isPremium) => persist({ ...session, isPremium }),
