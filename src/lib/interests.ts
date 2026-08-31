@@ -1,10 +1,12 @@
 import {
   Ban,
+  BookOpen,
   Camera,
   Car,
   Clapperboard,
   CodeXml,
   Dribbble,
+  Dumbbell,
   Gamepad2,
   Globe,
   Laptop,
@@ -14,6 +16,7 @@ import {
   Palette,
   Pizza,
   Plane,
+  Shirt,
   Smile,
   Sparkles,
   Zap,
@@ -21,19 +24,25 @@ import {
 } from "lucide-react";
 import type { Interest, PremiumFeatureKey, PremiumPlan } from "@/types";
 
+export const MAX_INTERESTS = 5;
+
 export const INTERESTS: Interest[] = [
   { id: "gaming", label: "Gaming", icon: "Gamepad2" },
   { id: "music", label: "Music", icon: "Music" },
   { id: "movies", label: "Movies", icon: "Clapperboard" },
   { id: "anime", label: "Anime", icon: "Smile" },
-  { id: "tech", label: "Tech", icon: "Laptop" },
+  { id: "technology", label: "Technology", icon: "Laptop" },
   { id: "travel", label: "Travel", icon: "Plane" },
   { id: "cars", label: "Cars", icon: "Car" },
   { id: "sports", label: "Sports", icon: "Dribbble" },
   { id: "memes", label: "Memes", icon: "Laugh" },
   { id: "coding", label: "Coding", icon: "CodeXml" },
   { id: "food", label: "Food", icon: "Pizza" },
+  { id: "photography", label: "Photography", icon: "Camera" },
+  { id: "fitness", label: "Fitness", icon: "Dumbbell" },
+  { id: "books", label: "Books", icon: "BookOpen" },
   { id: "art", label: "Art", icon: "Palette" },
+  { id: "fashion", label: "Fashion", icon: "Shirt" },
 ];
 
 export const INTEREST_ICONS: Record<string, LucideIcon> = {
@@ -41,15 +50,29 @@ export const INTEREST_ICONS: Record<string, LucideIcon> = {
   music: Music,
   movies: Clapperboard,
   anime: Smile,
-  tech: Laptop,
+  technology: Laptop,
   travel: Plane,
   cars: Car,
   sports: Dribbble,
   memes: Laugh,
   coding: CodeXml,
   food: Pizza,
+  photography: Camera,
+  fitness: Dumbbell,
+  books: BookOpen,
   art: Palette,
+  fashion: Shirt,
 };
+
+/** Normalize raw typed text into a hashtag interest id. */
+export function normalizeInterestInput(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^#+/, "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
 
 export const PREMIUM_PLANS: PremiumPlan[] = [
   {
