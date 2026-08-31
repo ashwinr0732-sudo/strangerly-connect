@@ -53,7 +53,7 @@ function InterestsPage() {
       commitDraft();
     } else if (e.key === "Backspace" && draft === "" && interests.length > 0) {
       e.preventDefault();
-      removeInterest(interests[interests.length - 1]);
+      removeInterest(interests[interests.length - 1]!);
     }
   };
 
