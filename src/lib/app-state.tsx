@@ -86,7 +86,7 @@ interface AppStateValue {
 // this module creates a fresh context while mounted providers still use the
 // old one, which makes useAppState throw "must be used inside AppStateProvider".
 const globalStore = globalThis as unknown as {
-  __strangerlyAppStateContext?: React.Context<AppStateValue | null>;
+  __strangerlyAppStateContext?: Context<AppStateValue | null>;
 };
 
 const AppStateContext =
