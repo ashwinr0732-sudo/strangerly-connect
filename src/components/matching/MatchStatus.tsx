@@ -1,0 +1,27 @@
+import { INTERESTS } from "@/lib/interests";
+
+export function MatchStatus({ interests }: { interests: string[] }) {
+  const labels = INTERESTS.filter((i) => interests.includes(i.id)).map((i) => i.label);
+
+  if (labels.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">Matching you with anyone available</p>
+    );
+  }
+
+  return (
+    <div className="space-y-3 text-center">
+      <p className="text-sm text-muted-foreground">Looking for someone who likes</p>
+      <div className="flex flex-wrap justify-center gap-2">
+        {labels.map((label) => (
+          <span
+            key={label}
+            className="rounded-full border border-border bg-surface/60 px-3 py-1.5 text-xs font-medium"
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
