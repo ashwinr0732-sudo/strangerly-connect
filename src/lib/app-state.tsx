@@ -4,6 +4,7 @@ import {
   useContext,
   useMemo,
   useState,
+  type Context,
   type ReactNode,
 } from "react";
 import type { ChatSession, Message, UserSession } from "@/types";
