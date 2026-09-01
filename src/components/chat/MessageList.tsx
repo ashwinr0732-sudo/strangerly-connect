@@ -6,7 +6,7 @@ import { useAppState } from "@/lib/app-state";
 import type { ImageMessage } from "@/types";
 
 export function MessageList() {
-  const { chat, markMessage } = useAppState();
+  const { chat } = useAppState();
   const [viewing, setViewing] = useState<ImageMessage | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -22,13 +22,7 @@ export function MessageList() {
           <MessageBubble
             key={message.id}
             message={message}
-            onOpenViewOnce={(m) => {
-              setViewing(m);
-              markMessage(m.id, {
-                viewedAt: new Date().toISOString(),
-                state: "viewed",
-              } as Partial<ImageMessage>);
-            }}
+            onOpenViewOnce={(m) => setViewing(m)}
           />
         ))}
         {chat.strangerTyping && <TypingIndicator />}
