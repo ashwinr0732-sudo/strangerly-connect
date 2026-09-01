@@ -14,13 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_queue: {
+        Row: {
+          created_at: string
+          id: string
+          interests: string[]
+          last_seen_at: string
+          matching_mode: string
+          session_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interests?: string[]
+          last_seen_at?: string
+          matching_mode?: string
+          session_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interests?: string[]
+          last_seen_at?: string
+          matching_mode?: string
+          session_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_queue_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          status: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          status?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          session_id: string
+          type: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          session_id: string
+          type?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          session_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      end_chat_session: { Args: { p_session: string }; Returns: undefined }
+      is_session_active: { Args: { p_session: string }; Returns: boolean }
+      is_session_participant: {
+        Args: { p_session: string; p_user: string }
+        Returns: boolean
+      }
+      leave_queue: { Args: never; Returns: undefined }
+      request_match: {
+        Args: { p_interests: string[]; p_mode: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

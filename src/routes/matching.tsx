@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
@@ -25,8 +26,29 @@ export const Route = createFileRoute("/matching")({
 });
 
 function MatchingPage() {
-  const { session, startChat } = useAppState();
+  const {
+    session,
+    authStatus,
+    matchState,
+    hasActiveChat,
+    startMatching,
+    cancelMatching,
+  } = useAppState();
   const navigate = useNavigate();
+
+  // Kick off matchmaking as soon as an anonymous identity exists.
+  useEffect(() => {
+    if (authStatus === "ready" && matchState === "idle" && !hasActiveChat) {
+      startMatching();
+    }
+  }, [authStatus, matchState, hasActiveChat, startMatching]);
+
+  // Matched — go straight into the conversation.
+  useEffect(() => {
+    if (matchState === "matched" && hasActiveChat) navigate({ to: "/chat" });
+  }, [matchState, hasActiveChat, navigate]);
+
+  const interestMode = session.matchingMode === "interests" && session.interests.length > 0;
 
   return (
     <AppShell className="grid place-items-center px-4 py-10 sm:px-6">
@@ -41,23 +63,39 @@ function MatchingPage() {
           <MatchingAnimation />
         </div>
 
-        <MatchStatus interests={session.interests} />
+        {authStatus === "error" ? (
+          <p className="text-sm text-destructive">
+            Something went wrong. Try again.
+          </p>
+        ) : matchState === "error" ? (
+          <p className="text-sm text-destructive">
+            Something went wrong. Try again.
+          </p>
+        ) : matchState === "cancelled" ? (
+          <p className="text-sm text-muted-foreground">Search cancelled.</p>
+        ) : interestMode ? (
+          <MatchStatus interests={session.interests} />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Looking for a random stranger.
+          </p>
+        )}
 
         <div className="mt-8 space-y-3">
-          {/* Temporary development entry point until real matchmaking exists. */}
-          <PrimaryButton
-            block
-            onClick={() => {
-              startChat();
-              navigate({ to: "/chat" });
-            }}
-          >
-            Enter chat (dev)
-          </PrimaryButton>
+          {(matchState === "error" ||
+            matchState === "cancelled" ||
+            authStatus === "error") && (
+            <PrimaryButton block onClick={startMatching}>
+              Try again
+            </PrimaryButton>
+          )}
           <PrimaryButton
             block
             variant="outline"
-            onClick={() => navigate({ to: "/interests" })}
+            onClick={async () => {
+              await cancelMatching();
+              navigate({ to: "/interests" });
+            }}
           >
             Cancel
           </PrimaryButton>

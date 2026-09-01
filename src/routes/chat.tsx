@@ -5,8 +5,9 @@ import { MessageComposer } from "@/components/chat/MessageComposer";
 import { MessageList } from "@/components/chat/MessageList";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
+import { GlassCard } from "@/components/common/GlassCard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { createId, useAppState } from "@/lib/app-state";
+import { useAppState } from "@/lib/app-state";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -27,28 +28,43 @@ export const Route = createFileRoute("/chat")({
 });
 
 function ChatPage() {
-  const { chat, startChat, nextStranger, endChat, addMessage } = useAppState();
+  const { chat, hasActiveChat, authStatus, nextStranger, endChat, startMatching } =
+    useAppState();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
+  // No conversation to show — send the visitor back to the start of the flow.
   useEffect(() => {
-    if (chat.status === "idle") startChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (authStatus === "ready" && !hasActiveChat && chat.status === "idle") {
+      navigate({ to: "/interests" });
+    }
+  }, [authStatus, hasActiveChat, chat.status, navigate]);
 
-  useEffect(() => {
-    if (chat.status !== "active" || chat.messages.length > 0) return;
-    addMessage({
-      id: createId(),
-      chatId: chat.id,
-      author: "system",
-      type: "text",
-      state: "delivered",
-      createdAt: new Date().toISOString(),
-      body: "You're now chatting anonymously. Be kind and respect others.",
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat.status, chat.id]);
+  const handleNext = async () => {
+    if (busy) return;
+    setBusy(true);
+    await nextStranger();
+    setBusy(false);
+    navigate({ to: "/matching" });
+  };
+
+  const handleEnd = async () => {
+    if (busy) return;
+    setBusy(true);
+    await endChat();
+    setBusy(false);
+    navigate({ to: "/" });
+  };
+
+  const findSomeoneNew = async () => {
+    if (busy) return;
+    setBusy(true);
+    await endChat();
+    startMatching();
+    setBusy(false);
+    navigate({ to: "/matching" });
+  };
 
   return (
     <div className="flex h-dvh bg-background">
@@ -57,24 +73,31 @@ function ChatPage() {
       <div className="relative flex min-w-0 flex-1 flex-col">
         <div className="pointer-events-none absolute inset-0 bg-space" aria-hidden />
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <ChatHeader
-            onNext={nextStranger}
-            onOpenMenu={() => setDrawerOpen(true)}
-          />
+          <ChatHeader onNext={handleNext} onOpenMenu={() => setDrawerOpen(true)} />
           <MessageList />
-          <MessageComposer />
-          <div className="border-t border-border bg-background/80 px-3 py-2 text-center lg:hidden">
-            <PrimaryButton
-              variant="danger"
-              size="sm"
-              onClick={() => {
-                endChat();
-                navigate({ to: "/" });
-              }}
-            >
-              End Chat
-            </PrimaryButton>
-          </div>
+
+          {chat.status === "ended" ? (
+            <div className="shrink-0 border-t border-border bg-background/80 px-3 py-5 backdrop-blur-xl sm:px-6">
+              <GlassCard className="mx-auto max-w-md p-5 text-center">
+                <p className="text-sm font-semibold">Stranger disconnected</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  This conversation has ended.
+                </p>
+                <PrimaryButton block className="mt-4" onClick={findSomeoneNew}>
+                  Find someone new
+                </PrimaryButton>
+              </GlassCard>
+            </div>
+          ) : (
+            <>
+              <MessageComposer />
+              <div className="border-t border-border bg-background/80 px-3 py-2 text-center lg:hidden">
+                <PrimaryButton variant="danger" size="sm" onClick={handleEnd}>
+                  End Chat
+                </PrimaryButton>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

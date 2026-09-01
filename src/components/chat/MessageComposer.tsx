@@ -1,59 +1,28 @@
 import { Image as ImageIcon, Mic, Send, Smile } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
-import { createId, useAppState } from "@/lib/app-state";
-import type { ImageMessage, VoiceMessage } from "@/types";
+import { MAX_MESSAGE_LENGTH, useAppState } from "@/lib/app-state";
 
 export function MessageComposer() {
-  const { chat, session, addMessage } = useAppState();
+  const { chat, session, sendMessage, connection } = useAppState();
   const [value, setValue] = useState("");
+  const [sending, setSending] = useState(false);
   const disabled = chat.status !== "active";
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     const body = value.trim();
-    if (!body || disabled) return;
-    addMessage({
-      id: createId(),
-      chatId: chat.id,
-      author: "self",
-      type: "text",
-      state: "sent",
-      createdAt: new Date().toISOString(),
-      body,
-    });
+    if (!body || disabled || sending) return;
+    setSending(true);
+    const previous = value;
     setValue("");
-  };
-
-  const sendViewOnceImage = () => {
-    const now = new Date();
-    const message: ImageMessage = {
-      id: createId(),
-      chatId: chat.id,
-      author: "self",
-      type: "image",
-      state: "sent",
-      createdAt: now.toISOString(),
-      url: "",
-      isViewOnce: true,
-      viewedAt: null,
-      expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-    };
-    addMessage(message);
-  };
-
-  const sendVoice = () => {
-    const message: VoiceMessage = {
-      id: createId(),
-      chatId: chat.id,
-      author: "self",
-      type: "voice",
-      state: "sent",
-      createdAt: new Date().toISOString(),
-      url: "",
-      durationSeconds: 12,
-    };
-    addMessage(message);
+    const error = await sendMessage(body);
+    setSending(false);
+    if (error) {
+      setValue(previous);
+      toast.error(error);
+    }
   };
 
   const iconButton =
@@ -61,12 +30,16 @@ export function MessageComposer() {
 
   return (
     <div className="shrink-0 border-t border-border bg-background/80 px-3 py-3 backdrop-blur-xl sm:px-6 sm:py-4">
+      {connection === "reconnecting" && (
+        <p className="mx-auto mb-2 max-w-3xl text-center text-xs text-muted-foreground">
+          Reconnecting...
+        </p>
+      )}
       <form onSubmit={submit} className="mx-auto flex max-w-3xl items-center gap-2">
         <PremiumFeatureLock label="Send an image">
           <button
             type="button"
             aria-label="Send an image"
-            onClick={sendViewOnceImage}
             className={iconButton}
             disabled={!session.isPremium}
           >
@@ -78,7 +51,6 @@ export function MessageComposer() {
           <button
             type="button"
             aria-label="Send a voice message"
-            onClick={sendVoice}
             className={iconButton}
             disabled={!session.isPremium}
           >
@@ -89,7 +61,7 @@ export function MessageComposer() {
         <div className="relative flex-1">
           <input
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => setValue(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
             disabled={disabled}
             placeholder={disabled ? "Chat ended" : "Type a message..."}
             className="h-12 w-full rounded-2xl border border-border bg-surface/60 pl-4 pr-11 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50"
@@ -100,7 +72,7 @@ export function MessageComposer() {
         <button
           type="submit"
           aria-label="Send message"
-          disabled={disabled}
+          disabled={disabled || sending}
           className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground glow transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Send className="h-4.5 w-4.5" />
