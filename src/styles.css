@@ -47,6 +47,10 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-glass: var(--glass);
+
+  --color-wordmark-base: var(--wordmark-base);
+  --color-wordmark-accent: var(--wordmark-accent);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -55,6 +59,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --wordmark-base: oklch(1 0 0);
+  --wordmark-accent: oklch(0.74 0.16 305);
+  --shadow-wordmark: 0 0 16px -2px color-mix(in oklab, var(--wordmark-accent) 60%, transparent);
 }
 
 :root {
@@ -167,6 +177,10 @@
 
 @utility glow {
   box-shadow: var(--shadow-glow);
+}
+
+@utility wordmark-glow {
+  text-shadow: var(--shadow-wordmark);
 }
 
 @utility bg-gradient-primary {
