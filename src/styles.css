@@ -47,6 +47,10 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-glass: var(--glass);
+
+  --color-wordmark-base: var(--wordmark-base);
+  --color-wordmark-accent: var(--wordmark-accent);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

@@ -35,7 +35,8 @@ export function StrangerlyLogo({ className, size = "md", showWordmark = true }: 
       </span>
       {showWordmark && (
         <span className={cn("font-extrabold tracking-tight", s.text)}>
-          stran<span className="text-gradient">gerly</span>
+          <span className="text-wordmark-base">Sly</span>
+          <span className="text-wordmark-accent wordmark-glow">pp</span>
         </span>
       )}
     </span>
