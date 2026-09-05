@@ -5,13 +5,13 @@ import { GlassCard } from "@/components/common/GlassCard";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — strangerly" },
+      { title: "Terms of Service — slypp" },
       {
         name: "description",
-        content: "The rules for using strangerly anonymous chat.",
+        content: "The rules for using slypp anonymous chat.",
       },
-      { property: "og:title", content: "Terms of Service — strangerly" },
-      { property: "og:description", content: "By using strangerly, you agree to these terms." },
+      { property: "og:title", content: "Terms of Service — slypp" },
+      { property: "og:description", content: "By using slypp, you agree to these terms." },
     ],
   }),
   component: TermsPage,
@@ -22,7 +22,7 @@ const POINTS = [
   "Do not engage in illegal or harmful activities.",
   "Do not send spam or inappropriate content.",
   "We reserve the right to suspend misuse.",
-  "You must be of legal age to use strangerly.",
+  "You must be of legal age to use slypp.",
 ];
 
 function TermsPage() {
@@ -31,7 +31,7 @@ function TermsPage() {
       <GlassCard className="mx-auto max-w-2xl p-8">
         <h1 className="text-2xl font-extrabold">Terms of Service</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          By using strangerly, you agree to:
+          By using slypp, you agree to:
         </p>
         <ul className="mt-6 space-y-3">
           {POINTS.map((p) => (

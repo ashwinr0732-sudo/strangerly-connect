@@ -8,7 +8,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { StrangerlyLogo } from "@/components/brand/StrangerlyLogo";
+import { SlyppLogo } from "@/components/brand/SlyppLogo";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 export const NAV_ITEMS: { to: string; label: string; icon: LucideIcon }[] = [
@@ -30,7 +30,7 @@ export function MobileNavigation({ open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-72 border-border bg-sidebar p-6">
         <SheetTitle className="sr-only">Navigation</SheetTitle>
-        <StrangerlyLogo size="sm" />
+        <SlyppLogo size="sm" />
         <nav className="mt-8 space-y-1">
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
             <Link

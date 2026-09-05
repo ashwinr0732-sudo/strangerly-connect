@@ -12,8 +12,8 @@ const sizes = {
   lg: { box: "h-14 w-14", text: "text-3xl" },
 };
 
-/** strangerly mascot mark + wordmark. */
-export function StrangerlyLogo({ className, size = "md", showWordmark = true }: Props) {
+/** slypp mascot mark + wordmark. */
+export function SlyppLogo({ className, size = "md", showWordmark = true }: Props) {
   const s = sizes[size];
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>

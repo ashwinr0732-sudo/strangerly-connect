@@ -20,12 +20,12 @@ export const Route = createFileRoute("/payment")({
   }),
   head: () => ({
     meta: [
-      { title: "Checkout — strangerly Premium" },
+      { title: "Checkout — slypp Premium" },
       {
         name: "description",
-        content: "Complete your strangerly Premium upgrade with a secure payment.",
+        content: "Complete your slypp Premium upgrade with a secure payment.",
       },
-      { property: "og:title", content: "Checkout — strangerly Premium" },
+      { property: "og:title", content: "Checkout — slypp Premium" },
       { property: "og:description", content: "Secure premium checkout." },
     ],
   }),

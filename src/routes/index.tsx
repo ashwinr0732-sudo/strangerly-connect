@@ -7,13 +7,13 @@ import { PrimaryButton } from "@/components/common/PrimaryButton";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "strangerly — Meet someone new" },
+      { title: "slypp — Meet someone new" },
       {
         name: "description",
         content:
           "Anonymous conversations with people around the world. No account, no profiles, no trace.",
       },
-      { property: "og:title", content: "strangerly — Meet someone new" },
+      { property: "og:title", content: "slypp — Meet someone new" },
       {
         property: "og:description",
         content: "Talk to a stranger. Share a moment. Move on.",

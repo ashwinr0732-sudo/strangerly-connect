@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, Sparkles } from "lucide-react";
-import { StrangerlyLogo } from "@/components/brand/StrangerlyLogo";
+import { SlyppLogo } from "@/components/brand/SlyppLogo";
 
 interface Props {
   onOpenMenu?: () => void;
@@ -10,8 +10,8 @@ export function Header({ onOpenMenu }: Props) {
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" aria-label="strangerly home">
-          <StrangerlyLogo size="sm" />
+        <Link to="/" aria-label="slypp home">
+          <SlyppLogo size="sm" />
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-4">
