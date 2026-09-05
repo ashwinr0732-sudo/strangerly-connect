@@ -18,7 +18,7 @@ import { MAX_INTERESTS } from "@/lib/interests";
  * Identity, matchmaking, chat sessions and messages live in the backend.
  */
 
-const SESSION_KEY = "strangerly.session";
+const SESSION_KEY = "slypp.session";
 const MAX_MESSAGE_LENGTH = 2000;
 
 function createId() {
@@ -132,12 +132,12 @@ interface AppStateValue {
 
 // Keep a single context instance across HMR updates.
 const globalStore = globalThis as unknown as {
-  __strangerlyAppStateContext?: Context<AppStateValue | null>;
+  __slyppAppStateContext?: Context<AppStateValue | null>;
 };
 
 const AppStateContext =
-  globalStore.__strangerlyAppStateContext ??
-  (globalStore.__strangerlyAppStateContext = createContext<AppStateValue | null>(
+  globalStore.__slyppAppStateContext ??
+  (globalStore.__slyppAppStateContext = createContext<AppStateValue | null>(
     null,
   ));
 

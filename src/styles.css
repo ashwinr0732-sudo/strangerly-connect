@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * strangerly design system.
+ * slypp design system.
  * Very dark navy/black surfaces, violet primary, glass cards, soft glow.
  * All colors are oklch tokens. Never hardcode colors in components.
  */

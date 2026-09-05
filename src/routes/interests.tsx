@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/interests")({
   head: () => ({
     meta: [
-      { title: "What are you into? — strangerly" },
+      { title: "What are you into? — slypp" },
       {
         name: "description",
         content:
-          "Pick up to five interests — or add your own hashtags — so strangerly can match you with someone you'll vibe with.",
+          "Pick up to five interests — or add your own hashtags — so slypp can match you with someone you'll vibe with.",
       },
-      { property: "og:title", content: "What are you into? — strangerly" },
+      { property: "og:title", content: "What are you into? — slypp" },
       {
         property: "og:description",
         content: "Choose something you love talking about. Interests are free for everyone.",

@@ -5,13 +5,13 @@ import { GlassCard } from "@/components/common/GlassCard";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — strangerly" },
+      { title: "Privacy Policy — slypp" },
       {
         name: "description",
         content:
-          "strangerly does not collect personal information and conversations are not stored.",
+          "slypp does not collect personal information and conversations are not stored.",
       },
-      { property: "og:title", content: "Privacy Policy — strangerly" },
+      { property: "og:title", content: "Privacy Policy — slypp" },
       { property: "og:description", content: "Your privacy is our priority." },
     ],
   }),

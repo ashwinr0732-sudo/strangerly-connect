@@ -11,16 +11,16 @@ import type { PremiumPlanId } from "@/types";
 export const Route = createFileRoute("/premium")({
   head: () => ({
     meta: [
-      { title: "Go Premium — strangerly" },
+      { title: "Go Premium — slypp" },
       {
         name: "description",
         content:
           "Unlock view-once images, voice messages, priority matching and an ad-free experience.",
       },
-      { property: "og:title", content: "Go Premium — strangerly" },
+      { property: "og:title", content: "Go Premium — slypp" },
       {
         property: "og:description",
-        content: "Unlock more ways to connect on strangerly.",
+        content: "Unlock more ways to connect on slypp.",
       },
     ],
   }),

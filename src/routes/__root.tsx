@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "strangerly — anonymous conversations" },
+      { title: "slypp — anonymous conversations" },
       {
         name: "description",
         content:
           "Talk to a stranger. Share a moment. Move on. Anonymous chat with no account required.",
       },
-      { property: "og:title", content: "strangerly — anonymous conversations" },
+      { property: "og:title", content: "slypp — anonymous conversations" },
       {
         property: "og:description",
         content: "Anonymous conversations with people around the world.",

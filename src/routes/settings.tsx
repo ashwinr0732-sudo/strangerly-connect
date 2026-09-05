@@ -9,13 +9,13 @@ import { useAppState } from "@/lib/app-state";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — strangerly" },
+      { title: "Settings — slypp" },
       {
         name: "description",
-        content: "Manage your strangerly preferences, interests and premium status.",
+        content: "Manage your slypp preferences, interests and premium status.",
       },
-      { property: "og:title", content: "Settings — strangerly" },
-      { property: "og:description", content: "Your strangerly preferences." },
+      { property: "og:title", content: "Settings — slypp" },
+      { property: "og:description", content: "Your slypp preferences." },
     ],
   }),
   component: SettingsPage,

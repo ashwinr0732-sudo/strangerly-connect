@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Globe, Info, LogOut, MessageCircle, Sparkles } from "lucide-react";
-import { StrangerlyLogo } from "@/components/brand/StrangerlyLogo";
+import { SlyppLogo } from "@/components/brand/SlyppLogo";
 import { useAppState } from "@/lib/app-state";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +21,8 @@ export function Sidebar({ className }: { className?: string }) {
         className,
       )}
     >
-      <Link to="/" aria-label="strangerly home">
-        <StrangerlyLogo size="sm" />
+      <Link to="/" aria-label="slypp home">
+        <SlyppLogo size="sm" />
       </Link>
 
       <Link

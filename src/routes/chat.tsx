@@ -12,15 +12,15 @@ import { useAppState } from "@/lib/app-state";
 export const Route = createFileRoute("/chat")({
   head: () => ({
     meta: [
-      { title: "Anonymous chat — strangerly" },
+      { title: "Anonymous chat — slypp" },
       {
         name: "description",
         content: "Chat anonymously with a stranger. Be kind and respect others.",
       },
-      { property: "og:title", content: "Anonymous chat — strangerly" },
+      { property: "og:title", content: "Anonymous chat — slypp" },
       {
         property: "og:description",
-        content: "Your anonymous conversation on strangerly.",
+        content: "Your anonymous conversation on slypp.",
       },
     ],
   }),

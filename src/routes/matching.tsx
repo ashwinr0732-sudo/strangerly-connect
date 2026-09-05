@@ -10,12 +10,12 @@ import { useAppState } from "@/lib/app-state";
 export const Route = createFileRoute("/matching")({
   head: () => ({
     meta: [
-      { title: "Finding someone — strangerly" },
+      { title: "Finding someone — slypp" },
       {
         name: "description",
-        content: "strangerly is finding an anonymous stranger who shares your interests.",
+        content: "slypp is finding an anonymous stranger who shares your interests.",
       },
-      { property: "og:title", content: "Finding someone — strangerly" },
+      { property: "og:title", content: "Finding someone — slypp" },
       {
         property: "og:description",
         content: "Matching you with someone awesome.",

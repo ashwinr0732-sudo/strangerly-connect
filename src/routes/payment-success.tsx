@@ -7,12 +7,12 @@ import { PrimaryButton } from "@/components/common/PrimaryButton";
 export const Route = createFileRoute("/payment-success")({
   head: () => ({
     meta: [
-      { title: "You're Premium — strangerly" },
+      { title: "You're Premium — slypp" },
       {
         name: "description",
-        content: "Your strangerly Premium features are unlocked.",
+        content: "Your slypp Premium features are unlocked.",
       },
-      { property: "og:title", content: "You're Premium — strangerly" },
+      { property: "og:title", content: "You're Premium — slypp" },
       { property: "og:description", content: "Premium features unlocked." },
     ],
   }),
