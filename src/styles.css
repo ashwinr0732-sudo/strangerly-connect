@@ -62,6 +62,12 @@
 }
 
 :root {
+  --wordmark-base: oklch(1 0 0);
+  --wordmark-accent: oklch(0.74 0.16 305);
+  --shadow-wordmark: 0 0 16px -2px color-mix(in oklab, var(--wordmark-accent) 60%, transparent);
+}
+
+:root {
   --radius: 1rem;
 
   --background: oklch(0.14 0.025 285);
@@ -171,6 +177,10 @@
 
 @utility glow {
   box-shadow: var(--shadow-glow);
+}
+
+@utility wordmark-glow {
+  text-shadow: var(--shadow-wordmark);
 }
 
 @utility bg-gradient-primary {
