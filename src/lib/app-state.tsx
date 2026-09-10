@@ -101,7 +101,12 @@ function toMessage(row: MessageRow, userId: string | null): Message {
   };
 }
 
-export type AuthStatus = "loading" | "ready" | "error";
+export type AuthStatus =
+  | "loading"
+  | "authenticated"
+  | "unauthenticated"
+  | "ready"
+  | "error";
 export type MatchState = "idle" | "finding" | "matched" | "cancelled" | "error";
 export type ConnectionState = "online" | "reconnecting";
 
@@ -128,6 +133,8 @@ interface AppStateValue {
   sendMessage: (text: string) => Promise<string | null>;
   nextStranger: () => Promise<void>;
   endChat: () => Promise<void>;
+  signInWithGoogle: () => Promise<string | null>;
+  signOut: () => Promise<void>;
 }
 
 // Keep a single context instance across HMR updates.

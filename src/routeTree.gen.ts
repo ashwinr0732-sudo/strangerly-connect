@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -26,9 +28,18 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -47,40 +58,41 @@ const TermsRoute = TermsRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
-  id: '/_authenticated/chat',
+  id: '/chat',
   path: '/chat',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInterestsRoute = AuthenticatedInterestsRouteImport.update({
-  id: '/_authenticated/interests',
+  id: '/interests',
   path: '/interests',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMatchingRoute = AuthenticatedMatchingRouteImport.update({
-  id: '/_authenticated/matching',
+  id: '/matching',
   path: '/matching',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPaymentRoute = AuthenticatedPaymentRouteImport.update({
-  id: '/_authenticated/payment',
+  id: '/payment',
   path: '/payment',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPaymentSuccessRoute =
   AuthenticatedPaymentSuccessRouteImport.update({
-    id: '/_authenticated/payment-success',
+    id: '/payment-success',
     path: '/payment-success',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/_authenticated/settings',
+  id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -94,6 +106,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -107,7 +120,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
@@ -123,6 +138,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/auth'
     | '/premium'
     | '/privacy'
     | '/terms'
@@ -136,6 +152,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/auth'
     | '/premium'
     | '/privacy'
     | '/terms'
@@ -148,7 +165,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
+    | '/auth'
     | '/premium'
     | '/privacy'
     | '/terms'
@@ -162,16 +181,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
   PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
-  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
-  AuthenticatedInterestsRoute: typeof AuthenticatedInterestsRoute
-  AuthenticatedMatchingRoute: typeof AuthenticatedMatchingRoute
-  AuthenticatedPaymentRoute: typeof AuthenticatedPaymentRoute
-  AuthenticatedPaymentSuccessRoute: typeof AuthenticatedPaymentSuccessRoute
-  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -183,11 +198,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -216,58 +245,75 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof AuthenticatedChatRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/interests': {
       id: '/_authenticated/interests'
       path: '/interests'
       fullPath: '/interests'
       preLoaderRoute: typeof AuthenticatedInterestsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/matching': {
       id: '/_authenticated/matching'
       path: '/matching'
       fullPath: '/matching'
       preLoaderRoute: typeof AuthenticatedMatchingRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/payment': {
       id: '/_authenticated/payment'
       path: '/payment'
       fullPath: '/payment'
       preLoaderRoute: typeof AuthenticatedPaymentRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/payment-success': {
       id: '/_authenticated/payment-success'
       path: '/payment-success'
       fullPath: '/payment-success'
       preLoaderRoute: typeof AuthenticatedPaymentSuccessRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
-  PremiumRoute: PremiumRoute,
-  PrivacyRoute: PrivacyRoute,
-  TermsRoute: TermsRoute,
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
+  AuthenticatedInterestsRoute: typeof AuthenticatedInterestsRoute
+  AuthenticatedMatchingRoute: typeof AuthenticatedMatchingRoute
+  AuthenticatedPaymentRoute: typeof AuthenticatedPaymentRoute
+  AuthenticatedPaymentSuccessRoute: typeof AuthenticatedPaymentSuccessRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatRoute: AuthenticatedChatRoute,
   AuthenticatedInterestsRoute: AuthenticatedInterestsRoute,
   AuthenticatedMatchingRoute: AuthenticatedMatchingRoute,
   AuthenticatedPaymentRoute: AuthenticatedPaymentRoute,
   AuthenticatedPaymentSuccessRoute: AuthenticatedPaymentSuccessRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  PremiumRoute: PremiumRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
