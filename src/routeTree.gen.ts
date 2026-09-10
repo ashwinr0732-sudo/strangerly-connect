@@ -11,15 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as ChatRouteImport } from './routes/chat'
-import { Route as InterestsRouteImport } from './routes/interests'
-import { Route as MatchingRouteImport } from './routes/matching'
-import { Route as PaymentRouteImport } from './routes/payment'
-import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
+import { Route as AuthenticatedInterestsRouteImport } from './routes/_authenticated/interests'
+import { Route as AuthenticatedMatchingRouteImport } from './routes/_authenticated/matching'
+import { Route as AuthenticatedPaymentRouteImport } from './routes/_authenticated/payment'
+import { Route as AuthenticatedPaymentSuccessRouteImport } from './routes/_authenticated/payment-success'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,31 +29,6 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InterestsRoute = InterestsRouteImport.update({
-  id: '/interests',
-  path: '/interests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatchingRoute = MatchingRouteImport.update({
-  id: '/matching',
-  path: '/matching',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentRoute = PaymentRouteImport.update({
-  id: '/payment',
-  path: '/payment',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
-  id: '/payment-success',
-  path: '/payment-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -66,111 +41,137 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
+  id: '/_authenticated/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedInterestsRoute = AuthenticatedInterestsRouteImport.update({
+  id: '/_authenticated/interests',
+  path: '/interests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMatchingRoute = AuthenticatedMatchingRouteImport.update({
+  id: '/_authenticated/matching',
+  path: '/matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPaymentRoute = AuthenticatedPaymentRouteImport.update({
+  id: '/_authenticated/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPaymentSuccessRoute =
+  AuthenticatedPaymentSuccessRouteImport.update({
+    id: '/_authenticated/payment-success',
+    path: '/payment-success',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/_authenticated/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat': typeof ChatRoute
-  '/interests': typeof InterestsRoute
-  '/matching': typeof MatchingRoute
-  '/payment': typeof PaymentRoute
-  '/payment-success': typeof PaymentSuccessRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
-  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/interests': typeof AuthenticatedInterestsRoute
+  '/matching': typeof AuthenticatedMatchingRoute
+  '/payment': typeof AuthenticatedPaymentRoute
+  '/payment-success': typeof AuthenticatedPaymentSuccessRoute
+  '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat': typeof ChatRoute
-  '/interests': typeof InterestsRoute
-  '/matching': typeof MatchingRoute
-  '/payment': typeof PaymentRoute
-  '/payment-success': typeof PaymentSuccessRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
-  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/interests': typeof AuthenticatedInterestsRoute
+  '/matching': typeof AuthenticatedMatchingRoute
+  '/payment': typeof AuthenticatedPaymentRoute
+  '/payment-success': typeof AuthenticatedPaymentSuccessRoute
+  '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/chat': typeof ChatRoute
-  '/interests': typeof InterestsRoute
-  '/matching': typeof MatchingRoute
-  '/payment': typeof PaymentRoute
-  '/payment-success': typeof PaymentSuccessRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
-  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/chat': typeof AuthenticatedChatRoute
+  '/_authenticated/interests': typeof AuthenticatedInterestsRoute
+  '/_authenticated/matching': typeof AuthenticatedMatchingRoute
+  '/_authenticated/payment': typeof AuthenticatedPaymentRoute
+  '/_authenticated/payment-success': typeof AuthenticatedPaymentSuccessRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/premium'
+    | '/privacy'
+    | '/terms'
     | '/chat'
     | '/interests'
     | '/matching'
     | '/payment'
     | '/payment-success'
-    | '/premium'
-    | '/privacy'
     | '/settings'
-    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/premium'
+    | '/privacy'
+    | '/terms'
     | '/chat'
     | '/interests'
     | '/matching'
     | '/payment'
     | '/payment-success'
-    | '/premium'
-    | '/privacy'
     | '/settings'
-    | '/terms'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/chat'
-    | '/interests'
-    | '/matching'
-    | '/payment'
-    | '/payment-success'
     | '/premium'
     | '/privacy'
-    | '/settings'
     | '/terms'
+    | '/_authenticated/chat'
+    | '/_authenticated/interests'
+    | '/_authenticated/matching'
+    | '/_authenticated/payment'
+    | '/_authenticated/payment-success'
+    | '/_authenticated/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  ChatRoute: typeof ChatRoute
-  InterestsRoute: typeof InterestsRoute
-  MatchingRoute: typeof MatchingRoute
-  PaymentRoute: typeof PaymentRoute
-  PaymentSuccessRoute: typeof PaymentSuccessRoute
   PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
-  SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
+  AuthenticatedInterestsRoute: typeof AuthenticatedInterestsRoute
+  AuthenticatedMatchingRoute: typeof AuthenticatedMatchingRoute
+  AuthenticatedPaymentRoute: typeof AuthenticatedPaymentRoute
+  AuthenticatedPaymentSuccessRoute: typeof AuthenticatedPaymentSuccessRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -189,41 +190,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interests': {
-      id: '/interests'
-      path: '/interests'
-      fullPath: '/interests'
-      preLoaderRoute: typeof InterestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/matching': {
-      id: '/matching'
-      path: '/matching'
-      fullPath: '/matching'
-      preLoaderRoute: typeof MatchingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payment': {
-      id: '/payment'
-      path: '/payment'
-      fullPath: '/payment'
-      preLoaderRoute: typeof PaymentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payment-success': {
-      id: '/payment-success'
-      path: '/payment-success'
-      fullPath: '/payment-success'
-      preLoaderRoute: typeof PaymentSuccessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/premium': {
       id: '/premium'
       path: '/premium'
@@ -238,18 +204,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/chat': {
+      id: '/_authenticated/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof AuthenticatedChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/interests': {
+      id: '/_authenticated/interests'
+      path: '/interests'
+      fullPath: '/interests'
+      preLoaderRoute: typeof AuthenticatedInterestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/matching': {
+      id: '/_authenticated/matching'
+      path: '/matching'
+      fullPath: '/matching'
+      preLoaderRoute: typeof AuthenticatedMatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/payment': {
+      id: '/_authenticated/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof AuthenticatedPaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/payment-success': {
+      id: '/_authenticated/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof AuthenticatedPaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -258,15 +259,15 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  ChatRoute: ChatRoute,
-  InterestsRoute: InterestsRoute,
-  MatchingRoute: MatchingRoute,
-  PaymentRoute: PaymentRoute,
-  PaymentSuccessRoute: PaymentSuccessRoute,
   PremiumRoute: PremiumRoute,
   PrivacyRoute: PrivacyRoute,
-  SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  AuthenticatedChatRoute: AuthenticatedChatRoute,
+  AuthenticatedInterestsRoute: AuthenticatedInterestsRoute,
+  AuthenticatedMatchingRoute: AuthenticatedMatchingRoute,
+  AuthenticatedPaymentRoute: AuthenticatedPaymentRoute,
+  AuthenticatedPaymentSuccessRoute: AuthenticatedPaymentSuccessRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
