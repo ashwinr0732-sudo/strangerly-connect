@@ -370,6 +370,35 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setMatchState("finding");
   }, [activeSessionId]);
 
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      const { lovable } = await import("@/integrations/lovable/index");
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) return "Couldn't sign in with Google. Please try again.";
+      return null;
+    } catch {
+      return "Couldn't sign in with Google. Please try again.";
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const current = activeSessionId;
+    setActiveSessionId(null);
+    setChat(emptyChat());
+    setMatchState("idle");
+    try {
+      if (current) await supabase.rpc("end_chat_session", { p_session: current });
+      await supabase.rpc("leave_queue");
+    } catch {
+      /* ignore — signing out regardless */
+    }
+    await supabase.auth.signOut();
+    setUserId(null);
+    setAuthStatus("unauthenticated");
+  }, [activeSessionId]);
+
   const sendMessage = useCallback(
     async (text: string) => {
       const content = text.trim();
