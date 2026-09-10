@@ -12,7 +12,7 @@ import type { PremiumPlanId } from "@/types";
 
 const PLAN_IDS: PremiumPlanId[] = ["week", "month", "year"];
 
-export const Route = createFileRoute("/payment")({
+export const Route = createFileRoute("/_authenticated/payment")({
   validateSearch: (search: Record<string, unknown>) => ({
     plan: PLAN_IDS.includes(search['plan'] as PremiumPlanId)
       ? (search['plan'] as PremiumPlanId)

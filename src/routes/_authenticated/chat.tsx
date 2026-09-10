@@ -9,7 +9,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/chat")({
+export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({
     meta: [
       { title: "Anonymous chat — slypp" },

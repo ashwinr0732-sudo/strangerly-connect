@@ -9,7 +9,7 @@ import { useAppState } from "@/lib/app-state";
 import { MAX_INTERESTS, normalizeInterestInput } from "@/lib/interests";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/interests")({
+export const Route = createFileRoute("/_authenticated/interests")({
   head: () => ({
     meta: [
       { title: "What are you into? — slypp" },

@@ -6,7 +6,7 @@ import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
 import { Switch } from "@/components/ui/switch";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — slypp" },

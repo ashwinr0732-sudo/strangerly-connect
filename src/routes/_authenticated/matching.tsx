@@ -7,7 +7,7 @@ import { MatchingAnimation } from "@/components/matching/MatchingAnimation";
 import { MatchStatus } from "@/components/matching/MatchStatus";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/matching")({
+export const Route = createFileRoute("/_authenticated/matching")({
   head: () => ({
     meta: [
       { title: "Finding someone — slypp" },
