@@ -36,7 +36,7 @@ function ChatPage() {
 
   // No conversation to show — send the visitor back to the start of the flow.
   useEffect(() => {
-    if (authStatus === "ready" && !hasActiveChat && chat.status === "idle") {
+    if (authStatus === "authenticated" && !hasActiveChat && chat.status === "idle") {
       navigate({ to: "/interests" });
     }
   }, [authStatus, hasActiveChat, chat.status, navigate]);
