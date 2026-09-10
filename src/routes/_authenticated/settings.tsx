@@ -64,8 +64,18 @@ function SettingsPage() {
               </Link>
             )}
           </Row>
-          <Row icon={Shield} label="Anonymous session">
-            <span className="max-w-[10rem] truncate text-xs">{session.id}</span>
+          <Row icon={Shield} label="Chat identity">
+            <span className="text-xs">Anonymous Stranger</span>
+          </Row>
+          <Row icon={LogOut} label="Sign out">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={busy}
+              className="text-destructive hover:underline disabled:opacity-60"
+            >
+              {busy ? "Signing out…" : "Log out"}
+            </button>
           </Row>
         </GlassCard>
 
