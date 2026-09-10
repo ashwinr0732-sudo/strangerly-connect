@@ -1,12 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, ChevronRight, Crown, Globe, Languages, Shield, Sparkles, Users, Volume2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Bell, ChevronRight, Crown, Globe, Languages, LogOut, Shield, Sparkles, Users, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
 import { Switch } from "@/components/ui/switch";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/settings")({
+export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — slypp" },
@@ -42,7 +43,17 @@ function Row({
 }
 
 function SettingsPage() {
-  const { session, updatePreferences } = useAppState();
+  const { session, updatePreferences, signOut } = useAppState();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+
+  const handleSignOut = async () => {
+    if (busy) return;
+    setBusy(true);
+    await signOut();
+    navigate({ to: "/", replace: true });
+  };
+
 
   return (
     <AppShell className="px-4 py-10 sm:px-6">
@@ -64,8 +75,18 @@ function SettingsPage() {
               </Link>
             )}
           </Row>
-          <Row icon={Shield} label="Anonymous session">
-            <span className="max-w-[10rem] truncate text-xs">{session.id}</span>
+          <Row icon={Shield} label="Chat identity">
+            <span className="text-xs">Anonymous Stranger</span>
+          </Row>
+          <Row icon={LogOut} label="Sign out">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={busy}
+              className="text-destructive hover:underline disabled:opacity-60"
+            >
+              {busy ? "Signing out…" : "Log out"}
+            </button>
           </Row>
         </GlassCard>
 

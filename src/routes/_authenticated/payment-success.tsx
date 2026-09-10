@@ -4,7 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
 
-export const Route = createFileRoute("/payment-success")({
+export const Route = createFileRoute("/_authenticated/payment-success")({
   head: () => ({
     meta: [
       { title: "You're Premium — slypp" },

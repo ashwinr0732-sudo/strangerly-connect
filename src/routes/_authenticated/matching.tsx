@@ -7,7 +7,7 @@ import { MatchingAnimation } from "@/components/matching/MatchingAnimation";
 import { MatchStatus } from "@/components/matching/MatchStatus";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/matching")({
+export const Route = createFileRoute("/_authenticated/matching")({
   head: () => ({
     meta: [
       { title: "Finding someone — slypp" },
@@ -38,7 +38,7 @@ function MatchingPage() {
 
   // Kick off matchmaking as soon as an anonymous identity exists.
   useEffect(() => {
-    if (authStatus === "ready" && matchState === "idle" && !hasActiveChat) {
+    if (authStatus === "authenticated" && matchState === "idle" && !hasActiveChat) {
       startMatching();
     }
   }, [authStatus, matchState, hasActiveChat, startMatching]);

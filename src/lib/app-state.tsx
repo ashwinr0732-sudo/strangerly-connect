@@ -101,7 +101,12 @@ function toMessage(row: MessageRow, userId: string | null): Message {
   };
 }
 
-export type AuthStatus = "loading" | "ready" | "error";
+export type AuthStatus =
+  | "loading"
+  | "authenticated"
+  | "unauthenticated"
+  | "ready"
+  | "error";
 export type MatchState = "idle" | "finding" | "matched" | "cancelled" | "error";
 export type ConnectionState = "online" | "reconnecting";
 
@@ -128,6 +133,8 @@ interface AppStateValue {
   sendMessage: (text: string) => Promise<string | null>;
   nextStranger: () => Promise<void>;
   endChat: () => Promise<void>;
+  signInWithGoogle: () => Promise<string | null>;
+  signOut: () => Promise<void>;
 }
 
 // Keep a single context instance across HMR updates.
@@ -166,27 +173,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  /* ---------------- anonymous auth ---------------- */
+  /* ---------------- google account session ----------------
+   * The Google account is the private Slypp account identity only.
+   * Nothing from it is ever surfaced to the other chat participant. */
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        let uid = data.session?.user.id ?? null;
-        if (!uid) {
-          const { data: anon, error } = await supabase.auth.signInAnonymously();
-          if (error) throw error;
-          uid = anon.user?.id ?? null;
-        }
+        const { data, error } = await supabase.auth.getUser();
         if (cancelled) return;
+        const uid = error ? null : (data.user?.id ?? null);
         setUserId(uid);
-        setAuthStatus(uid ? "ready" : "error");
+        setAuthStatus(uid ? "authenticated" : "unauthenticated");
       } catch {
-        if (!cancelled) setAuthStatus("error");
+        if (!cancelled) setAuthStatus("unauthenticated");
       }
     })();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED")
+        return;
+      const uid = sess?.user.id ?? null;
+      setUserId(uid);
+      setAuthStatus(uid ? "authenticated" : "unauthenticated");
+      if (!uid) {
+        setActiveSessionId(null);
+        setChat(emptyChat());
+        setMatchState("idle");
+      }
+    });
+
     return () => {
       cancelled = true;
+      sub.subscription.unsubscribe();
     };
   }, []);
 
@@ -351,6 +370,35 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setMatchState("finding");
   }, [activeSessionId]);
 
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      const { lovable } = await import("@/integrations/lovable/index");
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) return "Couldn't sign in with Google. Please try again.";
+      return null;
+    } catch {
+      return "Couldn't sign in with Google. Please try again.";
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const current = activeSessionId;
+    setActiveSessionId(null);
+    setChat(emptyChat());
+    setMatchState("idle");
+    try {
+      if (current) await supabase.rpc("end_chat_session", { p_session: current });
+      await supabase.rpc("leave_queue");
+    } catch {
+      /* ignore — signing out regardless */
+    }
+    await supabase.auth.signOut();
+    setUserId(null);
+    setAuthStatus("unauthenticated");
+  }, [activeSessionId]);
+
   const sendMessage = useCallback(
     async (text: string) => {
       const content = text.trim();
@@ -414,6 +462,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendMessage,
       nextStranger,
       endChat,
+      signInWithGoogle,
+      signOut,
     }),
     [
       session,
@@ -430,6 +480,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendMessage,
       nextStranger,
       endChat,
+      signInWithGoogle,
+      signOut,
     ],
   );
 

@@ -9,7 +9,7 @@ import { GlassCard } from "@/components/common/GlassCard";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useAppState } from "@/lib/app-state";
 
-export const Route = createFileRoute("/chat")({
+export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({
     meta: [
       { title: "Anonymous chat — slypp" },
@@ -36,7 +36,7 @@ function ChatPage() {
 
   // No conversation to show — send the visitor back to the start of the flow.
   useEffect(() => {
-    if (authStatus === "ready" && !hasActiveChat && chat.status === "idle") {
+    if (authStatus === "authenticated" && !hasActiveChat && chat.status === "idle") {
       navigate({ to: "/interests" });
     }
   }, [authStatus, hasActiveChat, chat.status, navigate]);

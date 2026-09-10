@@ -3,6 +3,7 @@ import { ArrowRight, Lock, MessageCircle, Shield, Sparkles, VenetianMask } from 
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
+import { useAppState } from "@/lib/app-state";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,6 +31,8 @@ const cards = [
 ];
 
 function Landing() {
+  const { authStatus } = useAppState();
+
   return (
     <AppShell>
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-14 text-center sm:px-6 sm:pt-20">
@@ -49,7 +52,7 @@ function Landing() {
         </p>
 
         <PrimaryButton asChild size="lg" className="mt-10 px-10">
-          <Link to="/interests">
+          <Link to={authStatus === "authenticated" ? "/interests" : "/auth"}>
             <MessageCircle className="h-5 w-5" />
             Start Chatting
             <ArrowRight className="h-5 w-5" />
