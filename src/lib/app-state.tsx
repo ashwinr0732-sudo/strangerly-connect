@@ -462,6 +462,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendMessage,
       nextStranger,
       endChat,
+      signInWithGoogle,
+      signOut,
     }),
     [
       session,
@@ -478,6 +480,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sendMessage,
       nextStranger,
       endChat,
+      signInWithGoogle,
+      signOut,
     ],
   );
 
