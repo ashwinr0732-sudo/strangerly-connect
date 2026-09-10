@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, ChevronRight, Crown, Globe, Languages, Shield, Sparkles, Users, Volume2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Bell, ChevronRight, Crown, Globe, Languages, LogOut, Shield, Sparkles, Users, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
@@ -42,7 +43,17 @@ function Row({
 }
 
 function SettingsPage() {
-  const { session, updatePreferences } = useAppState();
+  const { session, updatePreferences, signOut } = useAppState();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+
+  const handleSignOut = async () => {
+    if (busy) return;
+    setBusy(true);
+    await signOut();
+    navigate({ to: "/", replace: true });
+  };
+
 
   return (
     <AppShell className="px-4 py-10 sm:px-6">
