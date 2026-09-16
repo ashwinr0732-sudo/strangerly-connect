@@ -5,7 +5,11 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    // Reject missing sessions AND legacy anonymous sessions — only a real
+    // Google-authenticated account may enter the protected app.
+    if (error || !data.user || data.user.is_anonymous) {
+      throw redirect({ to: "/auth" });
+    }
     return { user: data.user };
   },
   component: () => <Outlet />,
