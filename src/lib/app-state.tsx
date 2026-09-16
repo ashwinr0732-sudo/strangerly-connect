@@ -195,7 +195,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED")
         return;
-      const uid = sess?.user.id ?? null;
+      const uid = sess?.user && !sess.user.is_anonymous ? sess.user.id : null;
       setUserId(uid);
       setAuthStatus(uid ? "authenticated" : "unauthenticated");
       if (!uid) {
