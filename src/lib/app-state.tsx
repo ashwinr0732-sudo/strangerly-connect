@@ -182,7 +182,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       try {
         const { data, error } = await supabase.auth.getUser();
         if (cancelled) return;
-        const uid = error ? null : (data.user?.id ?? null);
+        // Anonymous sessions are not valid accounts — Google sign-in only.
+        const user = error ? null : (data.user ?? null);
+        const uid = user && !user.is_anonymous ? user.id : null;
         setUserId(uid);
         setAuthStatus(uid ? "authenticated" : "unauthenticated");
       } catch {
