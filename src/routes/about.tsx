@@ -37,11 +37,11 @@ function AboutPage() {
         </p>
         <p className="mt-8 text-xs text-muted-foreground">Made with 💜 for real connections.</p>
         <div className="mt-6 flex justify-center gap-5 text-sm">
-          <Link to="/privacy" className="text-primary-glow hover:underline">
-            Privacy
-          </Link>
           <Link to="/terms" className="text-primary-glow hover:underline">
-            Terms
+            Terms &amp; Conditions
+          </Link>
+          <Link to="/privacy" className="text-primary-glow hover:underline">
+            Privacy Policy
           </Link>
         </div>
       </GlassCard>
