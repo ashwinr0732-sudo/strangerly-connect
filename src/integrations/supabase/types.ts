@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -60,6 +60,7 @@ export type Database = {
           created_at: string
           ended_at: string | null
           id: string
+          shared_interests: string[]
           status: string
           user_a: string
           user_b: string
@@ -68,6 +69,7 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           id?: string
+          shared_interests?: string[]
           status?: string
           user_a: string
           user_b: string
@@ -76,6 +78,7 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           id?: string
+          shared_interests?: string[]
           status?: string
           user_a?: string
           user_b?: string
@@ -117,12 +120,49 @@ export type Database = {
           },
         ]
       }
+      user_consents: {
+        Row: {
+          age_confirmed: boolean
+          consented_at: string
+          privacy_accepted: boolean
+          privacy_version: string
+          terms_accepted: boolean
+          terms_version: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age_confirmed: boolean
+          consented_at?: string
+          privacy_accepted: boolean
+          privacy_version: string
+          terms_accepted: boolean
+          terms_version: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age_confirmed?: boolean
+          consented_at?: string
+          privacy_accepted?: boolean
+          privacy_version?: string
+          terms_accepted?: boolean
+          terms_version?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       end_chat_session: { Args: { p_session: string }; Returns: undefined }
+      has_current_consent: {
+        Args: { p_privacy: string; p_terms: string }
+        Returns: boolean
+      }
       is_session_active: { Args: { p_session: string }; Returns: boolean }
       is_session_participant: {
         Args: { p_session: string; p_user: string }

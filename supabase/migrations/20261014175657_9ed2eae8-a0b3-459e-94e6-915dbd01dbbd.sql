@@ -1,0 +1,1 @@
+ALTER FUNCTION public.has_current_consent(text, text) SECURITY INVOKER;

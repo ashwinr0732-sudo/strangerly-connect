@@ -118,6 +118,7 @@ interface AppStateValue {
   matchState: MatchState;
   connection: ConnectionState;
   hasActiveChat: boolean;
+  sharedInterests: string[];
   premiumModalOpen: boolean;
   setPremiumModalOpen: (open: boolean) => void;
   openPremiumModal: () => void;
@@ -158,6 +159,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [matchState, setMatchState] = useState<MatchState>("idle");
   const [connection, setConnection] = useState<ConnectionState>("online");
+  const [sharedInterests, setSharedInterests] = useState<string[]>([]);
 
   const matchPrefs = useRef({ mode: session.matchingMode, interests: session.interests });
   matchPrefs.current = { mode: session.matchingMode, interests: session.interests };
@@ -253,6 +255,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return { ...prev, messages: [...prev.messages, toMessage(row, userId)] };
       });
     };
+
+    setSharedInterests([]);
+    (async () => {
+      const { data: sess } = await (supabase as any)
+        .from("chat_sessions")
+        .select("shared_interests, status")
+        .eq("id", activeSessionId)
+        .maybeSingle();
+      if (!cancelled && sess) {
+        setSharedInterests((sess.shared_interests as string[] | null) ?? []);
+        if (sess.status === "ended")
+          setChat((prev) => ({ ...prev, status: "ended", strangerOnline: false }));
+      }
+    })();
 
     (async () => {
       const { data } = await supabase
@@ -436,6 +452,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       matchState,
       connection,
       hasActiveChat: Boolean(activeSessionId),
+      sharedInterests,
       premiumModalOpen,
       setPremiumModalOpen,
       openPremiumModal: () => setPremiumModalOpen(true),
@@ -475,6 +492,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       matchState,
       connection,
       activeSessionId,
+      sharedInterests,
       premiumModalOpen,
       persist,
       startMatching,
