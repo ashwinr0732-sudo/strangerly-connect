@@ -38,7 +38,11 @@ function MatchingPage() {
 
   // Kick off matchmaking as soon as an anonymous identity exists.
   useEffect(() => {
-    if (authStatus === "authenticated" && matchState === "idle" && !hasActiveChat) {
+    if (
+      authStatus === "authenticated" &&
+      (matchState === "idle" || matchState === "cancelled") &&
+      !hasActiveChat
+    ) {
       startMatching();
     }
   }, [authStatus, matchState, hasActiveChat, startMatching]);
