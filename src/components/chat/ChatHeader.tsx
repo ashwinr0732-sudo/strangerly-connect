@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ChatHeader({ onNext, onOpenMenu }: Props) {
-  const { chat } = useAppState();
+  const { chat, sharedInterests } = useAppState();
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background/70 px-3 backdrop-blur-xl sm:px-5">
@@ -30,6 +30,11 @@ export function ChatHeader({ onNext, onOpenMenu }: Props) {
           online={chat.strangerOnline}
           label={chat.strangerOnline ? "Online" : "Offline"}
         />
+        {sharedInterests.length > 0 && (
+          <p className="mt-0.5 truncate text-[11px] text-primary-glow" aria-label="Shared interests">
+            You both like {sharedInterests.map((i) => `#${i}`).join(" ")}
+          </p>
+        )}
       </div>
 
       <div className="ml-auto flex items-center gap-2">
