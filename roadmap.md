@@ -4,6 +4,6 @@
 - [x] Full Terms & Conditions page
 - [x] Full Privacy Policy page
 - [x] 18+ warning + mandatory consent checkbox on sign-in
-- [x] Sign-in area blocks entry without saved consent
-- [ ] Save consent records in the database (blocked: database temporarily unreachable — retry the consent migration)
-- [ ] Sign-in → consent saved → refresh test (needs the step above)
+- [x] Consent saved in database; protected pages, matching and messaging require it
+- [x] Two-account test: consent, interest match, shared interests, two-way messages, reload, Next, End Chat, random match
+- [ ] Real Google sign-in via the Google popup on two physical devices (needs the user)

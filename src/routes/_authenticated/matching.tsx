@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
@@ -38,9 +38,21 @@ function MatchingPage() {
 
   // Kick off matchmaking as soon as an anonymous identity exists.
   useEffect(() => {
-    if (authStatus === "authenticated" && matchState === "idle" && !hasActiveChat) {
+    if (
+      authStatus === "authenticated" &&
+      matchState === "idle" &&
+      !hasActiveChat
+    ) {
       startMatching();
     }
+  }, [authStatus, matchState, hasActiveChat, startMatching]);
+
+  // Arriving fresh after an earlier cancelled/failed search: start a new one.
+  const arrivedRef = useRef(false);
+  useEffect(() => {
+    if (arrivedRef.current || authStatus !== "authenticated") return;
+    arrivedRef.current = true;
+    if ((matchState === "cancelled" || matchState === "error") && !hasActiveChat) startMatching();
   }, [authStatus, matchState, hasActiveChat, startMatching]);
 
   // Matched — go straight into the conversation.
