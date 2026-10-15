@@ -13,14 +13,14 @@ export function MessageComposer() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const body = value.trim();
-    if (!body || disabled || sending) return;
+    if (!body || disabled) return;
+    // Clear immediately so the next message can be typed and sent while this one is in flight.
     setSending(true);
-    const previous = value;
     setValue("");
     const error = await sendMessage(body);
     setSending(false);
     if (error) {
-      setValue(previous);
+      setValue((current) => (current ? current : body));
       toast.error(error);
     }
   };
@@ -72,7 +72,7 @@ export function MessageComposer() {
         <button
           type="submit"
           aria-label="Send message"
-          disabled={disabled || sending}
+          disabled={disabled || !value.trim()}
           className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground glow transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Send className="h-4.5 w-4.5" />
