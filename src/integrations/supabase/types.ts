@@ -89,26 +89,35 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          duration_seconds: number | null
           id: string
+          media_path: string | null
           sender_id: string
           session_id: string
           type: string
+          viewed_at: string | null
         }
         Insert: {
           content: string
           created_at?: string
+          duration_seconds?: number | null
           id?: string
+          media_path?: string | null
           sender_id: string
           session_id: string
           type?: string
+          viewed_at?: string | null
         }
         Update: {
           content?: string
           created_at?: string
+          duration_seconds?: number | null
           id?: string
+          media_path?: string | null
           sender_id?: string
           session_id?: string
           type?: string
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -119,6 +128,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      premium_entitlements: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          plan: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          plan?: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          plan?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_consents: {
         Row: {
@@ -158,17 +191,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_delete_chat_media: { Args: { p_name: string }; Returns: boolean }
+      can_read_chat_media: { Args: { p_name: string }; Returns: boolean }
+      can_upload_chat_media: { Args: { p_name: string }; Returns: boolean }
       end_chat_session: { Args: { p_session: string }; Returns: undefined }
       has_current_consent: {
         Args: { p_privacy: string; p_terms: string }
         Returns: boolean
       }
+      is_premium: { Args: { p_user: string }; Returns: boolean }
       is_session_active: { Args: { p_session: string }; Returns: boolean }
       is_session_participant: {
         Args: { p_session: string; p_user: string }
         Returns: boolean
       }
       leave_queue: { Args: never; Returns: undefined }
+      open_view_once: { Args: { p_message: string }; Returns: string }
       request_match: {
         Args: { p_interests: string[]; p_mode: string }
         Returns: string
