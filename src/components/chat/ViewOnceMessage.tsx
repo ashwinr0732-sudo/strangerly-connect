@@ -3,10 +3,11 @@ import type { ImageMessage } from "@/types";
 
 interface Props {
   message: ImageMessage;
+  mine: boolean;
   onOpen: (message: ImageMessage) => void;
 }
 
-export function ViewOnceMessage({ message, onOpen }: Props) {
+export function ViewOnceMessage({ message, mine, onOpen }: Props) {
   const consumed = Boolean(message.viewedAt);
 
   return (
@@ -18,18 +19,26 @@ export function ViewOnceMessage({ message, onOpen }: Props) {
           <Lock className="h-6 w-6 text-primary-glow" />
         )}
       </span>
-      <p className="mt-3 text-sm font-semibold">View-once image</p>
+      <p className="mt-3 text-sm font-semibold text-foreground">View-once image</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {consumed ? "Already viewed." : "This image can only be viewed once."}
+        {mine
+          ? consumed
+            ? "Opened by the stranger."
+            : "Sent. The stranger can open it once."
+          : consumed
+            ? "Already viewed."
+            : "This image can only be viewed once."}
       </p>
-      <button
-        type="button"
-        disabled={consumed}
-        onClick={() => onOpen(message)}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-      >
-        <Eye className="h-4 w-4" /> {consumed ? "Unavailable" : "Tap to view"}
-      </button>
+      {!mine && (
+        <button
+          type="button"
+          disabled={consumed}
+          onClick={() => onOpen(message)}
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          <Eye className="h-4 w-4" /> {consumed ? "Unavailable" : "Tap to view"}
+        </button>
+      )}
     </div>
   );
 }

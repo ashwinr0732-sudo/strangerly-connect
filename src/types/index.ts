@@ -17,7 +17,8 @@ export interface TextMessage extends BaseMessage {
 
 export interface ImageMessage extends BaseMessage {
   type: "image";
-  url: string;
+  /** Private storage path; never a public URL. */
+  mediaPath: string;
   caption?: string;
   isViewOnce: boolean;
   viewedAt: string | null;
@@ -26,7 +27,8 @@ export interface ImageMessage extends BaseMessage {
 
 export interface VoiceMessage extends BaseMessage {
   type: "voice";
-  url: string;
+  /** Private storage path; played through a short-lived signed URL. */
+  mediaPath: string;
   durationSeconds: number;
 }
 
