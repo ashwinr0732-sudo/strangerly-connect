@@ -39,16 +39,9 @@ export function MessageBubble({ message, onOpenViewOnce }: Props) {
       >
         {message.type === "text" && <p className="leading-relaxed">{message.body}</p>}
         {message.type === "voice" && <VoiceMessage message={message} mine={mine} />}
-        {message.type === "image" &&
-          (message.isViewOnce ? (
-            <ViewOnceMessage message={message} onOpen={onOpenViewOnce} />
-          ) : (
-            <img
-              src={message.url}
-              alt={message.caption ?? "Shared image"}
-              className="max-h-64 rounded-xl"
-            />
-          ))}
+        {message.type === "image" && (
+          <ViewOnceMessage message={message} mine={mine} onOpen={onOpenViewOnce} />
+        )}
       </div>
       <span className="flex items-center gap-1 px-1 text-[11px] text-muted-foreground">
         {timeOf(message.createdAt)}

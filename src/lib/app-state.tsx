@@ -85,20 +85,63 @@ interface MessageRow {
   id: string;
   session_id: string;
   sender_id: string;
+  type?: string;
   content: string;
   created_at: string;
+  media_path?: string | null;
+  duration_seconds?: number | null;
+  viewed_at?: string | null;
 }
 
+const MSG_COLS =
+  "id, session_id, sender_id, type, content, created_at, media_path, duration_seconds, viewed_at";
+export const MAX_MEDIA_BYTES = 5 * 1024 * 1024;
+
 function toMessage(row: MessageRow, userId: string | null): Message {
-  return {
+  const base = {
     id: row.id,
     chatId: row.session_id,
-    author: row.sender_id === userId ? "self" : "stranger",
-    type: "text",
-    state: "delivered",
+    author: (row.sender_id === userId ? "self" : "stranger") as "self" | "stranger",
+    state: (row.viewed_at ? "viewed" : "delivered") as "viewed" | "delivered",
     createdAt: row.created_at,
-    body: row.content,
   };
+  if (row.type === "voice" && row.media_path)
+    return { ...base, type: "voice", mediaPath: row.media_path, durationSeconds: row.duration_seconds ?? 0 };
+  if (row.type === "image" && row.media_path)
+    return {
+      ...base,
+      type: "image",
+      mediaPath: row.media_path,
+      isViewOnce: true,
+      viewedAt: row.viewed_at ?? null,
+      expiresAt: null,
+    };
+  return { ...base, type: "text", body: row.content };
+}
+
+/** Short in-app chime via Web Audio (no asset, no network). Silently ignored if autoplay is blocked. */
+let audioCtx: AudioContext | null = null;
+function playChime() {
+  try {
+    const Ctor = window.AudioContext ?? (window as any).webkitAudioContext;
+    if (!Ctor) return;
+    audioCtx ??= new Ctor();
+    const ctx = audioCtx!;
+    if (ctx.state === "suspended") void ctx.resume().catch(() => {});
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.26);
+  } catch {
+    /* ignore */
+  }
 }
 
 export type AuthStatus =
@@ -128,7 +171,10 @@ interface AppStateValue {
   clearInterests: () => void;
   setMatchingMode: (mode: MatchingMode) => void;
   updatePreferences: (patch: Partial<UserSession["preferences"]>) => void;
-  setPremium: (value: boolean) => void;
+  /** Re-reads the backend Premium entitlement (the only source of truth). */
+  refreshPremium: () => Promise<void>;
+  sendMedia: (kind: "voice" | "image", blob: Blob, durationSeconds?: number) => Promise<string | null>;
+  markImageViewed: (id: string) => void;
   startMatching: () => void;
   cancelMatching: () => Promise<void>;
   sendMessage: (text: string) => Promise<string | null>;
@@ -160,6 +206,44 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [matchState, setMatchState] = useState<MatchState>("idle");
   const [connection, setConnection] = useState<ConnectionState>("online");
   const [sharedInterests, setSharedInterests] = useState<string[]>([]);
+  const [isPremium, setIsPremium] = useState(false);
+
+  const prefsRef = useRef(session.preferences);
+  prefsRef.current = session.preferences;
+  const alertedRef = useRef(new Set<string>());
+
+  const notifyIncoming = useCallback((row: MessageRow, uid: string) => {
+    if (row.sender_id === uid || alertedRef.current.has(row.id)) return;
+    alertedRef.current.add(row.id);
+    const prefs = prefsRef.current;
+    if (prefs.sound) playChime();
+    if (
+      prefs.notifications &&
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted" &&
+      document.visibilityState === "hidden"
+    ) {
+      try {
+        // Never include message content or any identity — only a generic alert.
+        new Notification("Slypp", { body: "New message from Anonymous Stranger", tag: row.id });
+      } catch {
+        /* some mobile browsers only allow notifications from a service worker */
+      }
+    }
+  }, []);
+
+  const refreshPremium = useCallback(async () => {
+    if (!userId) {
+      setIsPremium(false);
+      return;
+    }
+    const { data } = await supabase.rpc("is_premium", { p_user: userId });
+    setIsPremium(data === true);
+  }, [userId]);
+
+  useEffect(() => {
+    void refreshPremium();
+  }, [refreshPremium]);
 
   const matchPrefs = useRef({ mode: session.matchingMode, interests: session.interests });
   matchPrefs.current = { mode: session.matchingMode, interests: session.interests };
@@ -273,7 +357,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     (async () => {
       const { data } = await supabase
         .from("messages")
-        .select("id, session_id, sender_id, content, created_at")
+        .select(MSG_COLS)
         .eq("session_id", activeSessionId)
         .order("created_at", { ascending: true });
       if (cancelled || !data) return;
@@ -296,7 +380,27 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           table: "messages",
           filter: `session_id=eq.${activeSessionId}`,
         },
-        (payload) => appendRow(payload.new as MessageRow),
+        (payload) => {
+          const row = payload.new as MessageRow;
+          appendRow(row);
+          notifyIncoming(row, userId);
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `session_id=eq.${activeSessionId}`,
+        },
+        (payload) => {
+          const row = payload.new as MessageRow;
+          setChat((prev) => ({
+            ...prev,
+            messages: prev.messages.map((m) => (m.id === row.id ? toMessage(row, userId) : m)),
+          }));
+        },
       )
       .on(
         "postgres_changes",
@@ -428,7 +532,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from("messages")
         .insert({ session_id: activeSessionId, sender_id: userId, content, type: "text" })
-        .select("id, session_id, sender_id, content, created_at")
+        .select(MSG_COLS)
         .single();
 
       if (error || !data) return "Something went wrong. Try again.";
@@ -443,9 +547,69 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [activeSessionId, userId],
   );
 
+  const sendMedia = useCallback(
+    async (kind: "voice" | "image", blob: Blob, durationSeconds?: number) => {
+      if (!activeSessionId || !userId) return "This chat is no longer active.";
+      if (!isPremium) return "This is a Premium feature.";
+      if (blob.size === 0) return "Nothing to send.";
+      if (blob.size > MAX_MEDIA_BYTES) return "File is too large (max 5 MB).";
+      const ext =
+        kind === "image"
+          ? (blob.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg")
+          : blob.type.includes("mp4")
+            ? "m4a"
+            : blob.type.includes("ogg")
+              ? "ogg"
+              : "webm";
+      const path = `${activeSessionId}/${userId}/${kind}/${crypto.randomUUID()}.${ext}`;
+      const up = await supabase.storage
+        .from("chat-media")
+        .upload(path, blob, { contentType: blob.type || undefined, upsert: false });
+      if (up.error) return "Upload failed. Check your connection and try again.";
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          session_id: activeSessionId,
+          sender_id: userId,
+          type: kind,
+          content: "",
+          media_path: path,
+          duration_seconds: durationSeconds ? Math.round(durationSeconds) : null,
+        })
+        .select(MSG_COLS)
+        .single();
+      if (error || !data) {
+        void supabase.storage.from("chat-media").remove([path]);
+        return error?.message.includes("Premium")
+          ? "Premium is required to send this."
+          : "Couldn't send. Try again.";
+      }
+      setChat((prev) =>
+        prev.messages.some((m) => m.id === data.id)
+          ? prev
+          : { ...prev, messages: [...prev.messages, toMessage(data as MessageRow, userId)] },
+      );
+      return null;
+    },
+    [activeSessionId, userId, isPremium],
+  );
+
+  const markImageViewed = useCallback((id: string) => {
+    setChat((prev) => ({
+      ...prev,
+      messages: prev.messages.map((m) =>
+        m.id === id && m.type === "image"
+          ? { ...m, viewedAt: m.viewedAt ?? new Date().toISOString(), state: "viewed" }
+          : m,
+      ),
+    }));
+  }, []);
+
+  const sessionView = useMemo(() => ({ ...session, isPremium }), [session, isPremium]);
+
   const value = useMemo<AppStateValue>(
     () => ({
-      session,
+      session: sessionView,
       userId,
       authStatus,
       chat,
@@ -475,7 +639,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setMatchingMode: (matchingMode) => persist({ ...session, matchingMode }),
       updatePreferences: (patch) =>
         persist({ ...session, preferences: { ...session.preferences, ...patch } }),
-      setPremium: (isPremium) => persist({ ...session, isPremium }),
+      refreshPremium,
+      sendMedia,
+      markImageViewed,
       startMatching,
       cancelMatching,
       sendMessage,
@@ -498,6 +664,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       startMatching,
       cancelMatching,
       sendMessage,
+      sessionView,
+      refreshPremium,
+      sendMedia,
+      markImageViewed,
       nextStranger,
       endChat,
       signInWithGoogle,
