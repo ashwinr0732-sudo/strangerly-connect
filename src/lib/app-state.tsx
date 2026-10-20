@@ -609,7 +609,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AppStateValue>(
     () => ({
-      session,
+      session: sessionView,
       userId,
       authStatus,
       chat,
