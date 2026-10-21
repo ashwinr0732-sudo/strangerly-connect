@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Clock, CreditCard, Lock, ShieldCheck, Zap } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
@@ -55,15 +56,19 @@ function PaymentPage() {
   const [plan, setPlan] = useState<PremiumPlanId>(initialPlan);
   const [method, setMethod] = useState("upi");
   const [upi, setUpi] = useState("");
-  const { setPremium } = useAppState();
+  const { session } = useAppState();
   const navigate = useNavigate();
 
   const selected = PREMIUM_PLANS.find((p) => p.id === plan)!;
 
   const pay = () => {
-    // Mock payment only — real processing comes later.
-    setPremium(true);
-    navigate({ to: "/payment-success" });
+    // No payment provider is connected yet, so nothing is charged and Premium is NOT granted here.
+    // Premium can only be granted by the backend (e.g. a verified payment webhook).
+    if (session.isPremium) {
+      navigate({ to: "/payment-success" });
+      return;
+    }
+    toast.info("Payments aren't available yet. You haven't been charged.");
   };
 
   return (
@@ -116,7 +121,7 @@ function PaymentPage() {
               </PrimaryButton>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              You will be redirected to complete the payment.
+              Online payments are coming soon. You won't be charged.
             </p>
           </div>
 
