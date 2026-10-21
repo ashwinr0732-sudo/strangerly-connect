@@ -3,6 +3,7 @@ import { ArrowRight, Check, CheckCircle2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
+import { useAppState } from "@/lib/app-state";
 
 export const Route = createFileRoute("/_authenticated/payment-success")({
   head: () => ({
@@ -28,6 +29,19 @@ const UNLOCKED = [
 ];
 
 function PaymentSuccessPage() {
+  const { session } = useAppState();
+  if (!session.isPremium)
+    return (
+      <AppShell className="grid place-items-center px-4 py-12 sm:px-6">
+        <GlassCard className="w-full max-w-md p-8 text-center">
+          <h1 className="text-2xl font-extrabold">Premium isn't active</h1>
+          <p className="mt-2 text-sm text-muted-foreground">No Premium purchase was found on your account.</p>
+          <PrimaryButton asChild block className="mt-6">
+            <Link to="/premium">See Premium</Link>
+          </PrimaryButton>
+        </GlassCard>
+      </AppShell>
+    );
   return (
     <AppShell className="grid place-items-center px-4 py-12 sm:px-6">
       <GlassCard className="w-full max-w-md p-8 text-center">

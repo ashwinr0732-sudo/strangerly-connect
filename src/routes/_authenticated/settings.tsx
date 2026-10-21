@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Bell, ChevronRight, Crown, Globe, Languages, LogOut, Shield, Sparkles, Users, Volume2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
@@ -46,6 +47,22 @@ function SettingsPage() {
   const { session, updatePreferences, signOut } = useAppState();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [perm, setPerm] = useState<NotificationPermission | "unsupported">("default");
+  useEffect(() => {
+    setPerm(typeof Notification === "undefined" ? "unsupported" : Notification.permission);
+  }, []);
+  const notifyOn = session.preferences.notifications && perm === "granted";
+
+  const toggleNotifications = async (on: boolean) => {
+    if (!on) return updatePreferences({ notifications: false });
+    if (perm === "unsupported") return toast.error("This browser doesn't support notifications.");
+    if (perm === "denied")
+      return toast.error("Notifications are blocked. Allow them in your browser's site settings.");
+    const result = perm === "granted" ? perm : await Notification.requestPermission();
+    setPerm(result);
+    if (result === "granted") updatePreferences({ notifications: true });
+    else toast.error("Notification permission wasn't granted.");
+  };
 
   const handleSignOut = async () => {
     if (busy) return;
@@ -140,15 +157,21 @@ function SettingsPage() {
           <p className="px-4 pt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             General
           </p>
-          <Row icon={Bell} label="Notifications">
+          <Row icon={Bell} label="Browser notifications">
+            <span className="text-xs">
+              {perm === "unsupported" ? "Not supported" : perm === "denied" ? "Blocked" : "When tab is hidden"}
+            </span>
             <Switch
-              checked={session.preferences.notifications}
-              onCheckedChange={(notifications) => updatePreferences({ notifications })}
+              aria-label="Browser notifications"
+              checked={notifyOn}
+              disabled={perm === "unsupported"}
+              onCheckedChange={toggleNotifications}
             />
           </Row>
-          <Row icon={Volume2} label="Sound">
+          <Row icon={Volume2} label="In-app message sound">
             <Switch
               checked={session.preferences.sound}
+              aria-label="In-app message sound"
               onCheckedChange={(sound) => updatePreferences({ sound })}
             />
           </Row>
