@@ -564,7 +564,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const path = `${activeSessionId}/${userId}/${kind}/${crypto.randomUUID()}.${ext}`;
       const up = await supabase.storage
         .from("chat-media")
-        .upload(path, blob, { contentType: blob.type || undefined, upsert: false });
+        .upload(path, blob, { contentType: blob.type || "application/octet-stream", upsert: false });
       if (up.error) return "Upload failed. Check your connection and try again.";
       const { data, error } = await supabase
         .from("messages")
