@@ -104,6 +104,14 @@ function MatchingPage() {
           </p>
         )}
 
+        {matchState === "finding" && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {searchedSeconds < 30
+              ? `Searching… ${searchedSeconds}s`
+              : `Still searching… ${searchedSeconds}s. Tip: try again shortly, or cancel and match randomly.`}
+          </p>
+        )}
+
         <div className="mt-8 space-y-3">
           {(matchState === "error" ||
             matchState === "cancelled" ||
