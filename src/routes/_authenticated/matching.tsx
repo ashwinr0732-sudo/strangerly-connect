@@ -60,6 +60,17 @@ function MatchingPage() {
     if (matchState === "matched" && hasActiveChat) navigate({ to: "/chat" });
   }, [matchState, hasActiveChat, navigate]);
 
+  // Visible progress while searching, so an empty pool never looks frozen.
+  const [searchedSeconds, setSearchedSeconds] = useState(0);
+  useEffect(() => {
+    if (matchState !== "finding") {
+      setSearchedSeconds(0);
+      return;
+    }
+    const t = window.setInterval(() => setSearchedSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [matchState]);
+
   const interestMode = session.matchingMode === "interests" && session.interests.length > 0;
 
   return (
