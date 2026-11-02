@@ -446,6 +446,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       });
       if (stopped) return;
       if (error) {
+        // Make failures visible (message only — never tokens or account data).
+        console.warn("[slypp] matchmaking request failed:", error.message);
         setMatchState("error");
         return;
       }
@@ -457,9 +459,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     void tick();
     const timer = window.setInterval(() => void tick(), 2000);
+    // Mobile browsers pause timers in background tabs, which lets the queue
+    // heartbeat expire and other users drop us as stale. Refresh instantly
+    // when the page becomes visible again.
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void tick();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       stopped = true;
       window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [matchState, userId]);
 

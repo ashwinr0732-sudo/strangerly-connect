@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
@@ -60,6 +60,17 @@ function MatchingPage() {
     if (matchState === "matched" && hasActiveChat) navigate({ to: "/chat" });
   }, [matchState, hasActiveChat, navigate]);
 
+  // Visible progress while searching, so an empty pool never looks frozen.
+  const [searchedSeconds, setSearchedSeconds] = useState(0);
+  useEffect(() => {
+    if (matchState !== "finding") {
+      setSearchedSeconds(0);
+      return;
+    }
+    const t = window.setInterval(() => setSearchedSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [matchState]);
+
   const interestMode = session.matchingMode === "interests" && session.interests.length > 0;
 
   return (
@@ -90,6 +101,14 @@ function MatchingPage() {
         ) : (
           <p className="text-sm text-muted-foreground">
             Looking for a random stranger.
+          </p>
+        )}
+
+        {matchState === "finding" && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {searchedSeconds < 30
+              ? `Searching… ${searchedSeconds}s`
+              : `Still searching… ${searchedSeconds}s. Tip: try again shortly, or cancel and match randomly.`}
           </p>
         )}
 
