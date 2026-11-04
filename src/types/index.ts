@@ -30,6 +30,8 @@ export interface VoiceMessage extends BaseMessage {
   /** Private storage path; played through a short-lived signed URL. */
   mediaPath: string;
   durationSeconds: number;
+  isViewOnce: boolean;
+  viewedAt: string | null;
 }
 
 export type Message = TextMessage | ImageMessage | VoiceMessage;

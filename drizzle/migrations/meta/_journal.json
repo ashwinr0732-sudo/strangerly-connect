@@ -15,6 +15,13 @@
       "when": 1792572906537,
       "tag": "0001_messages_allow_media_types",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793806469378,
+      "tag": "0002_view_once_voice",
+      "breakpoints": true
     }
   ]
 }

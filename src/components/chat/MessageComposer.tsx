@@ -1,8 +1,20 @@
-import { Image as ImageIcon, Loader2, Mic, Send, Smile, Square, Trash2, X } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Image as ImageIcon,
+  Loader2,
+  Mic,
+  Send,
+  Smile,
+  Square,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
 import { MAX_MEDIA_BYTES, MAX_MESSAGE_LENGTH, useAppState } from "@/lib/app-state";
+import { cn } from "@/lib/utils";
 
 const MAX_RECORD_SECONDS = 60;
 
@@ -23,6 +35,7 @@ export function MessageComposer() {
   const { chat, session, sendMessage, sendMedia, connection } = useAppState();
   const [value, setValue] = useState("");
   const [voice, setVoice] = useState<Voice>({ step: "idle" });
+  const [voiceViewOnce, setVoiceViewOnce] = useState(false);
   const [image, setImage] = useState<{ file: File; url: string; sending: boolean } | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -104,13 +117,14 @@ export function MessageComposer() {
   const sendVoice = async () => {
     if (voice.step !== "preview") return;
     setVoice({ ...voice, step: "sending" });
-    const err = await sendMedia("voice", voice.blob, voice.seconds);
+    const err = await sendMedia("voice", voice.blob, voice.seconds, voiceViewOnce);
     if (err) {
       toast.error(err);
       setVoice({ ...voice, step: "preview" });
     } else {
       URL.revokeObjectURL(voice.url);
       setVoice({ step: "idle" });
+      setVoiceViewOnce(false);
     }
   };
 
@@ -168,6 +182,17 @@ export function MessageComposer() {
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <button type="button" aria-label="Discard voice message" onClick={discardVoice} disabled={voice.step === "sending"} className={iconButton}>
             <Trash2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label={voiceViewOnce ? "View-once is on — tap to allow replay" : "Allow replay — tap for view-once"}
+            title={voiceViewOnce ? "View-once: the stranger can listen only once" : "The stranger can replay this message"}
+            aria-pressed={voiceViewOnce}
+            onClick={() => setVoiceViewOnce((v) => !v)}
+            disabled={voice.step === "sending"}
+            className={cn(iconButton, voiceViewOnce && "border-primary/60 text-primary-glow")}
+          >
+            {voiceViewOnce ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
           <div className="flex h-12 flex-1 items-center gap-3 rounded-2xl border border-border bg-surface/60 px-4 text-sm">
             {voice.step === "recording" ? (

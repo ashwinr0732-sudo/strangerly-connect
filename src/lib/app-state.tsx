@@ -91,10 +91,11 @@ interface MessageRow {
   media_path?: string | null;
   duration_seconds?: number | null;
   viewed_at?: string | null;
+  is_view_once?: boolean | null;
 }
 
 const MSG_COLS =
-  "id, session_id, sender_id, type, content, created_at, media_path, duration_seconds, viewed_at";
+  "id, session_id, sender_id, type, content, created_at, media_path, duration_seconds, viewed_at, is_view_once";
 export const MAX_MEDIA_BYTES = 5 * 1024 * 1024;
 
 function toMessage(row: MessageRow, userId: string | null): Message {
@@ -106,7 +107,14 @@ function toMessage(row: MessageRow, userId: string | null): Message {
     createdAt: row.created_at,
   };
   if (row.type === "voice" && row.media_path)
-    return { ...base, type: "voice", mediaPath: row.media_path, durationSeconds: row.duration_seconds ?? 0 };
+    return {
+      ...base,
+      type: "voice",
+      mediaPath: row.media_path,
+      durationSeconds: row.duration_seconds ?? 0,
+      isViewOnce: row.is_view_once === true,
+      viewedAt: row.viewed_at ?? null,
+    };
   if (row.type === "image" && row.media_path)
     return {
       ...base,
@@ -174,7 +182,7 @@ interface AppStateValue {
   /** Re-reads the backend Premium entitlement (the only source of truth). */
   refreshPremium: () => Promise<void>;
   sendMedia: (kind: "voice" | "image", blob: Blob, durationSeconds?: number) => Promise<string | null>;
-  markImageViewed: (id: string) => void;
+  markViewed: (id: string) => void;
   startMatching: () => void;
   cancelMatching: () => Promise<void>;
   sendMessage: (text: string) => Promise<string | null>;
@@ -558,7 +566,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   const sendMedia = useCallback(
-    async (kind: "voice" | "image", blob: Blob, durationSeconds?: number) => {
+    async (kind: "voice" | "image", blob: Blob, durationSeconds?: number, isViewOnce?: boolean) => {
       if (!activeSessionId || !userId) return "This chat is no longer active.";
       if (!isPremium) return "This is a Premium feature.";
       if (blob.size === 0) return "Nothing to send.";
@@ -585,6 +593,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           content: "",
           media_path: path,
           duration_seconds: durationSeconds ? Math.round(durationSeconds) : null,
+          is_view_once: isViewOnce === true,
         })
         .select(MSG_COLS)
         .single();
@@ -604,11 +613,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [activeSessionId, userId, isPremium],
   );
 
-  const markImageViewed = useCallback((id: string) => {
+  const markViewed = useCallback((id: string) => {
     setChat((prev) => ({
       ...prev,
       messages: prev.messages.map((m) =>
-        m.id === id && m.type === "image"
+        m.id === id && (m.type === "image" || m.type === "voice")
           ? { ...m, viewedAt: m.viewedAt ?? new Date().toISOString(), state: "viewed" }
           : m,
       ),
@@ -651,7 +660,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         persist({ ...session, preferences: { ...session.preferences, ...patch } }),
       refreshPremium,
       sendMedia,
-      markImageViewed,
+      markViewed,
       startMatching,
       cancelMatching,
       sendMessage,
@@ -677,7 +686,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sessionView,
       refreshPremium,
       sendMedia,
-      markImageViewed,
+      markViewed,
       nextStranger,
       endChat,
       signInWithGoogle,

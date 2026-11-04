@@ -1,12 +1,12 @@
 import { Check, CheckCheck } from "lucide-react";
 import { VoiceMessage } from "@/components/chat/VoiceMessage";
-import { ViewOnceMessage } from "@/components/chat/ViewOnceMessage";
+import { ViewOnceMessage, type ViewOnceMedia } from "@/components/chat/ViewOnceMessage";
 import { cn } from "@/lib/utils";
-import type { ImageMessage, Message } from "@/types";
+import type { Message } from "@/types";
 
 interface Props {
   message: Message;
-  onOpenViewOnce: (message: ImageMessage) => void;
+  onOpenViewOnce: (message: ViewOnceMedia) => void;
 }
 
 function timeOf(iso: string) {
@@ -38,7 +38,12 @@ export function MessageBubble({ message, onOpenViewOnce }: Props) {
         )}
       >
         {message.type === "text" && <p className="leading-relaxed">{message.body}</p>}
-        {message.type === "voice" && <VoiceMessage message={message} mine={mine} />}
+        {message.type === "voice" &&
+          (message.isViewOnce ? (
+            <ViewOnceMessage message={message} mine={mine} onOpen={onOpenViewOnce} />
+          ) : (
+            <VoiceMessage message={message} mine={mine} />
+          ))}
         {message.type === "image" && (
           <ViewOnceMessage message={message} mine={mine} onOpen={onOpenViewOnce} />
         )}
