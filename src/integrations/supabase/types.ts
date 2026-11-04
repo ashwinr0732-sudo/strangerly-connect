@@ -91,6 +91,7 @@ export type Database = {
           created_at: string
           duration_seconds: number | null
           id: string
+          is_view_once: boolean
           media_path: string | null
           sender_id: string
           session_id: string
@@ -102,6 +103,7 @@ export type Database = {
           created_at?: string
           duration_seconds?: number | null
           id?: string
+          is_view_once?: boolean
           media_path?: string | null
           sender_id: string
           session_id: string
@@ -113,6 +115,7 @@ export type Database = {
           created_at?: string
           duration_seconds?: number | null
           id?: string
+          is_view_once?: boolean
           media_path?: string | null
           sender_id?: string
           session_id?: string
