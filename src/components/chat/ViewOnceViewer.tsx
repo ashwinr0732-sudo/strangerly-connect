@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 export type ViewerState =
   | { status: "closed" }
   | { status: "loading" }
-  | { status: "ready"; url: string }
+  | { status: "ready"; url: string; kind: "image" | "voice" }
   | { status: "unavailable"; reason: string };
 
 interface Props {
@@ -16,18 +16,24 @@ export function ViewOnceViewer({ state, onClose }: Props) {
   return (
     <Dialog open={state.status !== "closed"} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="glass-card max-w-md rounded-3xl border-border p-6 text-center">
-        <DialogTitle className="sr-only">View-once image</DialogTitle>
+        <DialogTitle className="sr-only">View-once message</DialogTitle>
         {state.status === "ready" ? (
           <div className="space-y-3">
-            <img
-              src={state.url}
-              alt="View-once image"
-              draggable={false}
-              onContextMenu={(e) => e.preventDefault()}
-              className="mx-auto max-h-[70dvh] select-none rounded-2xl"
-            />
+            {state.kind === "voice" ? (
+              <audio src={state.url} controls autoPlay className="w-full" />
+            ) : (
+              <img
+                src={state.url}
+                alt="View-once image"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                className="mx-auto max-h-[70dvh] select-none rounded-2xl"
+              />
+            )}
             <p className="text-xs text-muted-foreground">
-              Closing this removes the image for good. Screenshots can't be blocked.
+              {state.kind === "voice"
+                ? "Closing this removes the voice message for good. It can only be listened to once."
+                : "Closing this removes the image for good. Screenshots can't be blocked."}
             </p>
           </div>
         ) : state.status === "loading" ? (

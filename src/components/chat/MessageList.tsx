@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { ViewOnceViewer, type ViewerState } from "@/components/chat/ViewOnceViewer";
+import type { ViewOnceMedia } from "@/components/chat/ViewOnceMessage";
 import { supabase } from "@/integrations/supabase/client";
 import { useAppState } from "@/lib/app-state";
-import type { ImageMessage } from "@/types";
 
 export function MessageList() {
-  const { chat, markImageViewed } = useAppState();
+  const { chat, markViewed } = useAppState();
   const [viewer, setViewer] = useState<ViewerState>({ status: "closed" });
   const openedPath = useRef<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -16,7 +16,7 @@ export function MessageList() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat.messages.length, chat.strangerTyping]);
 
-  const open = async (m: ImageMessage) => {
+  const open = async (m: ViewOnceMedia) => {
     setViewer({ status: "loading" });
     // Backend records the single authorized open; returns nothing if already opened.
     const { data: path, error } = await supabase.rpc("open_view_once", { p_message: m.id });
@@ -24,20 +24,34 @@ export function MessageList() {
       setViewer({ status: "unavailable", reason: "Network error. Check your connection and try again." });
       return;
     }
-    markImageViewed(m.id);
+    markViewed(m.id);
     if (!path) {
-      setViewer({ status: "unavailable", reason: "This image has already been viewed and is no longer available." });
+      setViewer({
+        status: "unavailable",
+        reason:
+          m.type === "voice"
+            ? "This voice message has already been listened to and is no longer available."
+            : "This image has already been viewed and is no longer available.",
+      });
       return;
     }
+    // Short-lived signed URL; the storage policy only signs for the recipient's
+    // single open window (60s for images, 5 minutes for voice playback).
     const { data, error: signErr } = await supabase.storage
       .from("chat-media")
-      .createSignedUrl(path as string, 60);
+      .createSignedUrl(path as string, m.type === "voice" ? 300 : 60);
     if (signErr || !data) {
-      setViewer({ status: "unavailable", reason: "This image couldn't be loaded and is no longer available." });
+      setViewer({
+        status: "unavailable",
+        reason:
+          m.type === "voice"
+            ? "This voice message couldn't be loaded and is no longer available."
+            : "This image couldn't be loaded and is no longer available.",
+      });
       return;
     }
     openedPath.current = path as string;
-    setViewer({ status: "ready", url: data.signedUrl });
+    setViewer({ status: "ready", url: data.signedUrl, kind: m.type });
   };
 
   const close = () => {
