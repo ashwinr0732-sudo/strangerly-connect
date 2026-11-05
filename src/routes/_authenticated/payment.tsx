@@ -1,13 +1,13 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Clock, CreditCard, Lock, ShieldCheck, Zap } from "lucide-react";
+import { createFileRoute, useNavigate, useServerFn } from "@tanstack/react-router";
+import { ArrowRight, Clock, CreditCard, Loader2, Lock, ShieldCheck, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { GlassCard } from "@/components/common/GlassCard";
 import { PrimaryButton } from "@/components/common/PrimaryButton";
 import { PlanSelector } from "@/components/premium/PlanSelector";
+import { activateBetaPremium } from "@/lib/beta-premium.functions";
 import { PREMIUM_PLANS } from "@/lib/interests";
-import { useAppState } from "@/lib/app-state";
 import { cn } from "@/lib/utils";
 import type { PremiumPlanId } from "@/types";
 
