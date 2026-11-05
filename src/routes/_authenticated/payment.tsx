@@ -9,6 +9,7 @@ import { PlanSelector } from "@/components/premium/PlanSelector";
 import { activateBetaPremium } from "@/lib/beta-premium.functions";
 import { PREMIUM_PLANS } from "@/lib/interests";
 import { useAppState } from "@/lib/app-state";
+import { cn } from "@/lib/utils";
 import type { PremiumPlanId } from "@/types";
 
 const PLAN_IDS: PremiumPlanId[] = ["week", "month", "year"];
