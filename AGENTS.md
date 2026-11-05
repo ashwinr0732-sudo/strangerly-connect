@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 - Premium is read only from the backend `premium_entitlements` table via `is_premium()`; only service-role code (e.g. a verified payment webhook) may write it — never grant Premium from the client.
 - Chat media lives in the private `chat-media` bucket at `{session}/{sender}/{voice|image}/file`; access is enforced by storage policies + `open_view_once()`, and clients only use short-lived signed URLs.
+- Beta Premium: the payment page grants Premium via the `activateBetaPremium` server function (service-role upsert; rows marked `source = 'beta-launch'`). To switch to real payments, delete the function, the button call, and the `beta-launch` rows.
