@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Clock, CreditCard, Loader2, Lock, ShieldCheck, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

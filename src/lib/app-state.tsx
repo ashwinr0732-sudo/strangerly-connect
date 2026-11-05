@@ -181,7 +181,12 @@ interface AppStateValue {
   updatePreferences: (patch: Partial<UserSession["preferences"]>) => void;
   /** Re-reads the backend Premium entitlement (the only source of truth). */
   refreshPremium: () => Promise<void>;
-  sendMedia: (kind: "voice" | "image", blob: Blob, durationSeconds?: number) => Promise<string | null>;
+  sendMedia: (
+    kind: "voice" | "image",
+    blob: Blob,
+    durationSeconds?: number,
+    isViewOnce?: boolean,
+  ) => Promise<string | null>;
   markViewed: (id: string) => void;
   startMatching: () => void;
   cancelMatching: () => Promise<void>;
