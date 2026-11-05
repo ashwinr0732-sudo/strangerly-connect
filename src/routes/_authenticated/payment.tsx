@@ -8,7 +8,7 @@ import { PrimaryButton } from "@/components/common/PrimaryButton";
 import { PlanSelector } from "@/components/premium/PlanSelector";
 import { activateBetaPremium } from "@/lib/beta-premium.functions";
 import { PREMIUM_PLANS } from "@/lib/interests";
-import { cn } from "@/lib/utils";
+import { useAppState } from "@/lib/app-state";
 import type { PremiumPlanId } from "@/types";
 
 const PLAN_IDS: PremiumPlanId[] = ["week", "month", "year"];
@@ -56,19 +56,37 @@ function PaymentPage() {
   const [plan, setPlan] = useState<PremiumPlanId>(initialPlan);
   const [method, setMethod] = useState("upi");
   const [upi, setUpi] = useState("");
-  const { session } = useAppState();
+  const [activating, setActivating] = useState(false);
+  const { session, refreshPremium } = useAppState();
   const navigate = useNavigate();
+  const activatePremiumFn = useServerFn(activateBetaPremium);
 
   const selected = PREMIUM_PLANS.find((p) => p.id === plan)!;
 
-  const pay = () => {
-    // No payment provider is connected yet, so nothing is charged and Premium is NOT granted here.
-    // Premium can only be granted by the backend (e.g. a verified payment webhook).
+  const pay = async () => {
+    // TEMPORARY BETA ACTIVATION — Premium is granted by the backend without any
+    // payment while the beta runs. Nothing is charged and no payment transaction
+    // is created. Swap this for the payment provider's flow when it is connected.
     if (session.isPremium) {
       navigate({ to: "/payment-success" });
       return;
     }
-    toast.info("Payments aren't available yet. You haven't been charged.");
+    if (activating) return;
+    setActivating(true);
+    try {
+      const result = await activatePremiumFn();
+      await refreshPremium();
+      if (result.ok) {
+        toast.success("Premium activated — beta access, no payment taken.");
+        navigate({ to: "/payment-success" });
+      } else {
+        toast.error(result.error ?? "Couldn't activate Premium. Please try again.");
+      }
+    } catch {
+      toast.error("Couldn't activate Premium. Please try again.");
+    } finally {
+      setActivating(false);
+    }
   };
 
   return (
@@ -114,14 +132,21 @@ function PaymentPage() {
                 placeholder={method === "upi" ? "yourname@upi" : "Card number"}
                 className="h-12 flex-1 rounded-xl border border-border bg-background/50 px-4 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50"
               />
-              <PrimaryButton size="lg" className="sm:w-48" onClick={pay}>
-                Pay {selected.currency}
-                {selected.price.toLocaleString("en-IN")}
-                <ArrowRight className="h-4 w-4" />
+              <PrimaryButton size="lg" className="sm:w-48" onClick={pay} disabled={activating}>
+                {activating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    Pay {selected.currency}
+                    {selected.price.toLocaleString("en-IN")}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </PrimaryButton>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Online payments are coming soon. You won't be charged.
+              Beta access: Premium unlocks for free right now — no payment is taken. Real
+              checkout is coming soon.
             </p>
           </div>
 
