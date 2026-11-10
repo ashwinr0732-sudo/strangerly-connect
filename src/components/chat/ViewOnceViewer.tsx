@@ -27,13 +27,14 @@ export function ViewOnceViewer({ state, onClose }: Props) {
                 alt="View-once image"
                 draggable={false}
                 onContextMenu={(e) => e.preventDefault()}
-                className="mx-auto max-h-[70dvh] select-none rounded-2xl"
+                onDragStart={(e) => e.preventDefault()}
+                className="mx-auto max-h-[70dvh] select-none rounded-xl print:hidden [-webkit-touch-callout:none]"
               />
             )}
             <p className="text-xs text-muted-foreground">
               {state.kind === "voice"
                 ? "Closing this removes the voice message for good. It can only be listened to once."
-                : "Closing this removes the image for good. Screenshots can't be blocked."}
+                : "Closing this removes the image for good. Screenshot protection is limited by your device and browser."}
             </p>
           </div>
         ) : state.status === "loading" ? (
