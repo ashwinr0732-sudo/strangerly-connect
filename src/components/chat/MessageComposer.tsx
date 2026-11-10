@@ -13,10 +13,16 @@ import {
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { PremiumFeatureLock } from "@/components/premium/PremiumFeatureLock";
+import { VoicePlayerFrame, type VoicePlayerStatus } from "@/components/chat/VoiceMessage";
 import { MAX_MEDIA_BYTES, MAX_MESSAGE_LENGTH, useAppState } from "@/lib/app-state";
 import { cn } from "@/lib/utils";
 
 const MAX_RECORD_SECONDS = 60;
+
+function formatVoiceTime(seconds: number) {
+  const rounded = Math.max(0, Math.round(seconds));
+  return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, "0")}`;
+}
 
 type Voice =
   | { step: "idle" }
@@ -36,8 +42,11 @@ export function MessageComposer() {
   const [value, setValue] = useState("");
   const [voice, setVoice] = useState<Voice>({ step: "idle" });
   const [voiceViewOnce, setVoiceViewOnce] = useState(false);
+  const [previewStatus, setPreviewStatus] = useState<VoicePlayerStatus>("idle");
+  const [previewProgress, setPreviewProgress] = useState(0);
   const [image, setImage] = useState<{ file: File; url: string; sending: boolean } | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
   const startRef = useRef(0);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -91,6 +100,8 @@ export function MessageComposer() {
         toast.error("Recording failed. Please try again.");
         return;
       }
+      setPreviewStatus("idle");
+      setPreviewProgress(0);
       setVoice({ step: "preview", blob, url: URL.createObjectURL(blob), seconds });
     };
     recorderRef.current = rec;
@@ -105,13 +116,30 @@ export function MessageComposer() {
   };
 
   const discardVoice = () => {
+    previewAudioRef.current?.pause();
     if (voice.step === "recording") {
       const rec = recorderRef.current;
       if (rec) rec.onstop = () => stopTracks();
       rec?.stop();
     }
     if (voice.step === "preview" || voice.step === "sending") URL.revokeObjectURL(voice.url);
+    setPreviewStatus("idle");
+    setPreviewProgress(0);
     setVoice({ step: "idle" });
+  };
+
+  const togglePreview = () => {
+    const audio = previewAudioRef.current;
+    if (!audio || (voice.step !== "preview" && voice.step !== "sending")) return;
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
+    if (previewStatus === "error") audio.currentTime = 0;
+    void audio.play().catch(() => {
+      setPreviewStatus("error");
+      toast.error("Recording preview couldn't be played.");
+    });
   };
 
   const sendVoice = async () => {
@@ -123,6 +151,8 @@ export function MessageComposer() {
       setVoice({ ...voice, step: "preview" });
     } else {
       URL.revokeObjectURL(voice.url);
+      setPreviewStatus("idle");
+      setPreviewProgress(0);
       setVoice({ step: "idle" });
       setVoiceViewOnce(false);
     }
@@ -194,16 +224,48 @@ export function MessageComposer() {
           >
             {voiceViewOnce ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
-          <div className="flex h-12 flex-1 items-center gap-3 rounded-2xl border border-border bg-surface/60 px-4 text-sm">
-            {voice.step === "recording" ? (
-              <>
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
+          {voice.step === "recording" ? (
+            <div className="flex h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-voice-accent/25 bg-surface px-4 text-sm text-voice-accent">
+              <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-voice-accent" />
+              <span className="min-w-0 truncate">
                 Recording 0:{String(voice.seconds).padStart(2, "0")} / 1:00
-              </>
-            ) : (
-              <audio src={voice.url} controls className="h-9 w-full" />
-            )}
-          </div>
+              </span>
+            </div>
+          ) : (
+            <div className="min-w-0 flex-1">
+              <VoicePlayerFrame
+                status={previewStatus}
+                progress={previewProgress}
+                durationLabel={`${formatVoiceTime(previewProgress * voice.seconds)} / ${formatVoiceTime(voice.seconds)}`}
+                ariaLabel={
+                  previewStatus === "playing"
+                    ? "Pause voice preview"
+                    : previewStatus === "error"
+                      ? "Retry voice preview"
+                      : "Play voice preview"
+                }
+                onToggle={togglePreview}
+                disabled={voice.step === "sending"}
+              />
+              <audio
+                ref={previewAudioRef}
+                src={voice.url}
+                preload="metadata"
+                className="sr-only"
+                onPlay={() => setPreviewStatus("playing")}
+                onPause={() => setPreviewStatus((current) => current === "error" ? current : "paused")}
+                onTimeUpdate={(event) => {
+                  const audio = event.currentTarget;
+                  setPreviewProgress(audio.duration ? audio.currentTime / audio.duration : 0);
+                }}
+                onEnded={() => {
+                  setPreviewStatus("idle");
+                  setPreviewProgress(0);
+                }}
+                onError={() => setPreviewStatus("error")}
+              />
+            </div>
+          )}
           {voice.step === "recording" ? (
             <button type="button" aria-label="Stop recording" onClick={() => recorderRef.current?.stop()} className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground">
               <Square className="h-4 w-4" />

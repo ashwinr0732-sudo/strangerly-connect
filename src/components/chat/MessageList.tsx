@@ -10,7 +10,12 @@ export function MessageList() {
   const { chat, markViewed } = useAppState();
   const [viewer, setViewer] = useState<ViewerState>({ status: "closed" });
   const openedPath = useRef<string | null>(null);
+  const openedObjectUrl = useRef<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => () => {
+    if (openedObjectUrl.current) URL.revokeObjectURL(openedObjectUrl.current);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -51,11 +56,33 @@ export function MessageList() {
       return;
     }
     openedPath.current = path as string;
+    if (m.type === "image") {
+      try {
+        const response = await fetch(data.signedUrl, {
+          cache: "no-store",
+          referrerPolicy: "no-referrer",
+        });
+        if (!response.ok) throw new Error("Image download failed");
+        const localUrl = URL.createObjectURL(await response.blob());
+        openedObjectUrl.current = localUrl;
+        setViewer({ status: "ready", url: localUrl, kind: "image" });
+      } catch {
+        setViewer({
+          status: "unavailable",
+          reason: "This image couldn't be loaded and is no longer available.",
+        });
+      }
+      return;
+    }
     setViewer({ status: "ready", url: data.signedUrl, kind: m.type });
   };
 
   const close = () => {
     setViewer({ status: "closed" });
+    if (openedObjectUrl.current) {
+      URL.revokeObjectURL(openedObjectUrl.current);
+      openedObjectUrl.current = null;
+    }
     const path = openedPath.current;
     openedPath.current = null;
     if (path) void supabase.storage.from("chat-media").remove([path]);
